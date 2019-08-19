@@ -3,11 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "dayjs": "^1.7.8",
+    "ramda": "^0.26.1",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
-    "react-scripts": "3.1.1"
+    "react-scripts": "3.1.1",
+    "rxjs": "^6.3.3",
+    "sqlite3": "^4.0.6"
   },
   "scripts": {
+    "initdb": "mkdir -p data; rm -f data/db.sqlite; sqlite3 data/db.sqlite < ./scripts/schema.sql",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -16,6 +21,8 @@
   "eslintConfig": {
     "extends": "react-app"
   },
+  "proxy": "http://localhost:5000/",
+  "type": "module",
   "browserslist": {
     "production": [
       ">0.2%",
