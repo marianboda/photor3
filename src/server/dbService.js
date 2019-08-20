@@ -15,3 +15,5 @@ export const saveFile = (file) => {
 }
 
 export const save = file => file.isDir ? saveDir(file) : saveFile(file)
+
+export const getFiles = () => 'SELECT * FROM file LIMIT 100'

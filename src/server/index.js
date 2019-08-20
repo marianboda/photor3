@@ -2,15 +2,24 @@ import express from 'express'
 import sqlite from 'sqlite3'
 
 import { getReaddirRecursiveIterable } from './utils.js'
-import { save } from './dbService.js'
+import { save, getFiles } from './dbService.js'
 
 const app = express()
 const port = process.env.PORT || 5000
 
 app.listen(port, () => console.log(`Listening on port ${port}`))
-app.use(express.urlencoded())
+app.use(express.json())
 
-const db = new sqlite.Database('../../data/db.sqlite')
+const db = new sqlite.Database('./data/db.sqlite')
+
+async function dbGet() {
+    return new Promise((resolve, reject) => {
+        db.all(getFiles(), (err, data) => {
+            if (err) return reject(err)
+            return resolve(data)
+        })
+    })
+}
 
 const main = async (path) => {
     const iter = await getReaddirRecursiveIterable(path)
@@ -28,7 +37,12 @@ const main = async (path) => {
 }
 
 app.post('/scan', async (req, res) => {
-    const { dir } = req.body
-    const result = await main(dir)
+    const { path } = req.body
+    console.log(path)
+    const result = await main(path)
     res.send(result)
+})
+app.get('/files', async (req, res) => {
+    const data = await dbGet()
+    res.send(data)
 })

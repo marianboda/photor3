@@ -112,9 +112,9 @@ export const getReaddirIterable = (path) => {
         },
         next() {
             // counter++
-            if (counter > 100) {
-                return asyncDone()
-            }
+            // if (counter > 100) {
+            //     return asyncDone()
+            // }
             if (typeof buffer === 'undefined') {
                 return new Promise((resolve, reject) => {
                     fs.readdir(path, (e, files) => {
