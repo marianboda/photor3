@@ -17,3 +17,25 @@ export const saveFile = (file) => {
 export const save = file => file.isDir ? saveDir(file) : saveFile(file)
 
 export const getFiles = () => 'SELECT * FROM file LIMIT 100'
+
+export const getDeepestUnprocessedDir = () => {
+    return 'select * FROM dir WHERE deepFilesCount IS NULL ORDER BY length(path) DESC LIMIT 1'
+}
+
+export const getFilesInDir = (dir) => {
+    return `select * FROM file WHERE dir="${dir}"`
+}
+
+export const getDirsInDir = (dir) => {
+    return `select * FROM dir WHERE SUBSTR(path, 1, ${dir.length + 1})="${dir}/"`
+}
+
+export const updateDir = (id, data) => {
+    const values = Object.entries(data).reduce((acc, [key, value]) => {
+        const entry = `${key} = "${value}"`
+        return [...acc, entry];
+    }, [])
+    const valuesString = values.join(', ')
+
+    return `UPDATE dir SET ${valuesString} WHERE id=${id}`
+}

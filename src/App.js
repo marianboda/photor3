@@ -20,6 +20,16 @@ function scan(path) {
     })
 }
 
+function processDeepest() {
+    console.log('will be processing deepest')
+    fetch('/processDeepestDir', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+
+}
 function App() {
     const [files, setFiles] = useState([])
     const [path, setPath] = useState('')
@@ -36,6 +46,7 @@ function App() {
             <div>
                 <input type="text" value={path} onChange={e => setPath(e.target.value)}/>
                 <button type="button" onClick={() => scan(path)}>SCAN</button>
+                <button type="button" onClick={processDeepest}>PROCESS DEEPEST</button>
                 <button type="button" onClick={handleClick}>OK</button>
             </div>
             <div>

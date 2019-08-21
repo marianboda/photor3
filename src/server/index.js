@@ -2,7 +2,8 @@ import express from 'express'
 import sqlite from 'sqlite3'
 
 import { getReaddirRecursiveIterable } from './utils.js'
-import { save, getFiles } from './dbService.js'
+import { save, getFiles, getDeepestUnprocessedDir, getFilesInDir,
+    getDirsInDir, updateDir } from './dbService.js'
 
 const app = express()
 const port = process.env.PORT || 5000
@@ -12,9 +13,9 @@ app.use(express.json())
 
 const db = new sqlite.Database('./data/db.sqlite')
 
-async function dbGet() {
+async function dbGet(query) {
     return new Promise((resolve, reject) => {
-        db.all(getFiles(), (err, data) => {
+        db.all(query, (err, data) => {
             if (err) return reject(err)
             return resolve(data)
         })
@@ -43,6 +44,24 @@ app.post('/scan', async (req, res) => {
     res.send(result)
 })
 app.get('/files', async (req, res) => {
-    const data = await dbGet()
+    const data = await dbGet(getFiles())
     res.send(data)
+})
+app.post('/processDeepestDir', async (req, res) => {
+    const [dir] = await dbGet(getDeepestUnprocessedDir())
+    const files = await dbGet(getFilesInDir(dir.path))
+    const dirs = await dbGet(getDirsInDir(dir.path))
+    // const size = files.reduce((acc, el) => acc + el.size, 0) + dirs.reduce((acc, el) => )
+    const innerOnlyCount = dirs.reduce((acc, el) => acc + el.deepFilesCount, 0)
+    const filesCount = files.length
+    const deepFilesCount = filesCount + innerOnlyCount
+
+    const updateDirQuery = updateDir(dir.id, {
+        filesCount,
+        deepFilesCount,
+    })
+
+    const getResult = dbGet(updateDirQuery)
+
+    res.send({ deepFilesCount, filesCount, getResult })
 })
