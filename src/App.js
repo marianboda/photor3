@@ -28,8 +28,15 @@ function processDeepest() {
             'Content-Type': 'application/json',
         },
     })
-
 }
+
+function hashFile() {
+    console.log('will be hashing')
+    fetch('/hashFile', {
+        method: 'POST',
+    })
+}
+
 function App() {
     const [files, setFiles] = useState([])
     const [path, setPath] = useState('')
@@ -47,7 +54,8 @@ function App() {
                 <input type="text" value={path} onChange={e => setPath(e.target.value)}/>
                 <button type="button" onClick={() => scan(path)}>SCAN</button>
                 <button type="button" onClick={processDeepest}>PROCESS DEEPEST</button>
-                <button type="button" onClick={handleClick}>OK</button>
+                <button type="button" onClick={hashFile}>HASH</button>
+                <button type="button" onClick={handleClick}>LIST FILES</button>
             </div>
             <div>
                 {files.map(i => <FileView data={i} />)}

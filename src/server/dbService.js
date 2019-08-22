@@ -33,9 +33,15 @@ export const getDirsInDir = (dir) => {
 export const updateDir = (id, data) => {
     const values = Object.entries(data).reduce((acc, [key, value]) => {
         const entry = `${key} = "${value}"`
-        return [...acc, entry];
+        return [...acc, entry]
     }, [])
     const valuesString = values.join(', ')
 
     return `UPDATE dir SET ${valuesString} WHERE id=${id}`
 }
+
+export const getUnhashedFile = () => 'SELECT * FROM file WHERE hash IS NULL LIMIT 1'
+
+export const updateFileHash = (fileId, hash) => (
+    `UPDATE file SET hash="${hash}" WHERE id=${fileId}`
+)

@@ -1,9 +1,9 @@
 import express from 'express'
 import sqlite from 'sqlite3'
 
-import { getReaddirRecursiveIterable } from './utils.js'
+import { getReaddirRecursiveIterable, hashFile } from './utils.js'
 import { save, getFiles, getDeepestUnprocessedDir, getFilesInDir,
-    getDirsInDir, updateDir } from './dbService.js'
+    getDirsInDir, updateDir, getUnhashedFile, updateFileHash } from './dbService.js'
 
 const app = express()
 const port = process.env.PORT || 5000
@@ -43,10 +43,12 @@ app.post('/scan', async (req, res) => {
     const result = await main(path)
     res.send(result)
 })
+
 app.get('/files', async (req, res) => {
     const data = await dbGet(getFiles())
     res.send(data)
 })
+
 app.post('/processDeepestDir', async (req, res) => {
     const [dir] = await dbGet(getDeepestUnprocessedDir())
     const files = await dbGet(getFilesInDir(dir.path))
@@ -64,4 +66,11 @@ app.post('/processDeepestDir', async (req, res) => {
     const getResult = dbGet(updateDirQuery)
 
     res.send({ deepFilesCount, filesCount, getResult })
+})
+
+app.post('/hashFile', async (req, res) => {
+    const [file] = await dbGet(getUnhashedFile())
+    const hash = await hashFile(file.path)
+    await dbGet(updateFileHash(file.id, hash))
+    res.send({ ...file, hash })
 })
