@@ -45,3 +45,5 @@ export const getUnhashedFile = () => 'SELECT * FROM file WHERE hash IS NULL LIMI
 export const updateFileHash = (fileId, hash) => (
     `UPDATE file SET hash="${hash}" WHERE id=${fileId}`
 )
+
+export const getFileStats = () => 'SELECT COUNT(hash) as hashedCount, COUNT(id) as allCount FROM file'

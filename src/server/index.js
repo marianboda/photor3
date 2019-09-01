@@ -3,7 +3,7 @@ import sqlite from 'sqlite3'
 
 import { getReaddirRecursiveIterable, hashFile } from './utils.js'
 import { save, getFiles, getDeepestUnprocessedDir, getFilesInDir,
-    getDirsInDir, updateDir, getUnhashedFile, updateFileHash } from './dbService.js'
+    getDirsInDir, updateDir, getUnhashedFile, updateFileHash, getFileStats } from './dbService.js'
 
 const app = express()
 const port = process.env.PORT || 5000
@@ -47,6 +47,11 @@ app.post('/scan', async (req, res) => {
 app.get('/files', async (req, res) => {
     const data = await dbGet(getFiles())
     res.send(data)
+})
+
+app.get('/stats', async (req, res) => {
+    const data = await dbGet(getFileStats())
+    res.send(data[0])
 })
 
 app.post('/processDeepestDir', async (req, res) => {
