@@ -3,9 +3,6 @@ import { Header } from './Header'
 import './App.scss'
 import { ScanScreen } from './ScanScreen';
 
-
-
-
 function App() {
     return (
         <div className="App">
