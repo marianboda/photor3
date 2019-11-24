@@ -15,29 +15,27 @@
             margin-right: 10px;
             margin-left: 10px;
         }
-      }
+    }
 
-      .App-link {
+    .App-link {
         color: #61dafb;
-      }
+    }
 
-      .Files-content {
-          display: flex;
-          flex-direction: row;
-      }
+    .Files-content {
+        display: flex;
+        flex-direction: row;
+    }
 
-      @keyframes App-logo-spin {
+    @keyframes App-logo-spin {
         from {
-          transform: rotate(0deg);
+            transform: rotate(0deg);
         }
         to {
-          transform: rotate(360deg);
+            transform: rotate(360deg);
         }
-      }
+    }
 
-      input {
-          width: 300px;
-      }
+    input {
+        width: 300px;
+    }
 }
-
-

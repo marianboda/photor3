@@ -1,6 +1,6 @@
-import React from 'react'
-import { Header } from './Header'
-import './App.scss'
+import React from 'react';
+import { Header } from './Header';
+import './App.scss';
 import { ScanScreen } from './ScanScreen';
 
 function App() {
@@ -9,7 +9,7 @@ function App() {
             <Header />
             <ScanScreen />
         </div>
-    )
+    );
 }
 
-export default App
+export default App;

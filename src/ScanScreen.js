@@ -13,14 +13,7 @@ import { FileView } from './components/FileItem';
 //     })
 // }
 
-// function hashFile() {
-//     console.log('will be hashing')
-//     fetch('/hashFile', {
-//         method: 'POST',
-//     })
-// }
-
-export const ScanScreen = (props) => {
+export const ScanScreen = () => {
     const dispatch = useDispatch();
     const getFiles = () => dispatch({ type: 'GET_FILES' });
     const hashFile = () => dispatch({ type: 'HASH_FILE' });
@@ -35,17 +28,25 @@ export const ScanScreen = (props) => {
     return (
         <div className="Scan-screen">
             <div>
-                <input type="text" value={path} onChange={e => setPath(e.target.value)}/>
-                <button type="button" onClick={() => saveScanningPath(path)}>ADD</button>
-                <button type="button" onClick={() => scan(path)}>SCAN</button>
-                <button type="button" onClick={processDeepest}>PROCESS DEEPEST</button>
-                <button type="button" onClick={hashFile}>HASH</button>
-                <button type="button" onClick={getFiles}>LIST FILES</button>
+                <input type="text" value={path} onChange={e => setPath(e.target.value)} />
+                <button type="button" onClick={() => saveScanningPath(path)}>
+                    ADD
+                </button>
+                <button type="button" onClick={() => scan(path)}>
+                    SCAN
+                </button>
+                <button type="button" onClick={processDeepest}>
+                    PROCESS DEEPEST
+                </button>
+                <button type="button" onClick={hashFile}>
+                    HASH
+                </button>
+                <button type="button" onClick={getFiles}>
+                    LIST FILES
+                </button>
             </div>
             <div className="Files-content">
-                <div>
-                    {files && take(30, files).map(i => <FileView data={i} />)}
-                </div>
+                <div>{files && take(30, files).map(i => <FileView data={i} />)}</div>
             </div>
         </div>
     );
