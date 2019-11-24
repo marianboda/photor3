@@ -143,7 +143,7 @@ export const getReaddirIterable = (path) => {
     return iterable
   }
 
-const getFileObject = async (rawDir, file) => {
+export const getFileObject = async (rawDir, file = '') => {
     const dir = Path.resolve(rawDir)
     const filePath = Path.join(dir, file)
     const stat = await getStat(filePath)
@@ -196,4 +196,17 @@ export const getReaddirRecursiveIterable = (path) => {
         }
     }
     return iterable
-  }
+}
+
+export const scanDir = async (path) => {
+    console.log('scanning: ', path)
+    let iter = getReaddirIterable(path)
+    let result = []
+
+    for await (let i of iter) {
+        const file = await getFileObject(path, i)
+        result = [...result, file]
+    }
+
+    return result
+}

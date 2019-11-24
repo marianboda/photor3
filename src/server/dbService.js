@@ -8,13 +8,24 @@ export const saveDir = (dir) => {
     return `INSERT OR IGNORE INTO dir (${keys.join(',')}) VALUES (${vals.join(',')})`
 }
 
+export const getScanningPaths = () => 'SELECT * FROM scanning_path'
+export const saveScanningPath = (path) => {
+    return [`INSERT OR IGNORE INTO scanning_path (path) VALUES (?)`, [path]]
+}
+
 export const saveFile = (file) => {
     const keys = without(['isDir'], Object.keys(file))
     const vals = keys.map(key => `"${file[key]}"`)
     return `INSERT OR IGNORE INTO file (${keys.join(',')}) VALUES (${vals.join(',')})`
 }
 
-export const save = file => file.isDir ? saveDir(file) : saveFile(file)
+export const save = files => {
+    const saveOne = f => f.isDir ? saveDir(f) : saveFile(f)
+    if (Array.isArray(files)) {
+        return files.map(saveOne).join(";\n")
+    }
+    return saveOne(files)
+}
 
 export const getFiles = () => 'SELECT * FROM file LIMIT 100'
 

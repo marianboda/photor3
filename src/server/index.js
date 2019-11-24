@@ -1,8 +1,9 @@
 import express from 'express'
 import sqlite from 'sqlite3'
 
-import { getReaddirRecursiveIterable, hashFile } from './utils.js'
-import { save, getFiles, getDeepestUnprocessedDir, getFilesInDir,
+import { getReaddirRecursiveIterable, hashFile, scanDir, getFileObject } from './utils.js'
+import { save, getFiles, getDeepestUnprocessedDir, getFilesInDir, saveScanningPath,
+    getScanningPaths,
     getDirsInDir, updateDir, getUnhashedFile, updateFileHash, getFileStats } from './dbService.js'
 
 const app = express()
@@ -22,7 +23,7 @@ async function dbGet(query) {
     })
 }
 
-const main = async (path) => {
+const scan = async (path) => {
     const iter = await getReaddirRecursiveIterable(path)
     let count = 0
     let result = []
@@ -38,9 +39,20 @@ const main = async (path) => {
 }
 
 app.post('/scan', async (req, res) => {
+    const scanningPaths = await dbGet(getScanningPaths())
+    const path = scanningPaths[0].path
+    // const file = await getFileObject(path)
+    const result = await scan(path)
+    // const result = await scanDir(path)
+    // console.log(result)
+    // console.log(save(result))
+    // db.exec(save(result))
+    res.send(result)
+})
+
+app.post('/scanning-path', async (req, res) => {
     const { path } = req.body
-    console.log(path)
-    const result = await main(path)
+    const result = db.run(...saveScanningPath(path))
     res.send(result)
 })
 
