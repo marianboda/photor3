@@ -29,12 +29,14 @@ CREATE TABLE "file"(
 
 CREATE UNIQUE INDEX "dir_path" ON "file" ( "path" );
 
--- CREATE TABLE "ignore_path"(
--- 	"id" Integer NOT NULL PRIMARY KEY AUTOINCREMENT,
--- 	"path" Text NOT NULL );
+CREATE TABLE "ignore_path"(
+	"id" Integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+	"path" Text NOT NULL );
 
--- CREATE TABLE "scanning_path"(
--- 	"id" Integer NOT NULL PRIMARY KEY AUTOINCREMENT,
--- 	"path" Text NOT NULL );
+CREATE UNIQUE INDEX "ignore_path_path" ON "ignore_path" ( "path" );
 
--- CREATE UNIQUE INDEX "scanning_path_path" ON "scanning_path"( "path" );
+CREATE TABLE "scanning_path"(
+	"id" Integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+	"path" Text NOT NULL );
+
+CREATE UNIQUE INDEX "scanning_path_path" ON "scanning_path" ( "path" );
