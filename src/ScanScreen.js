@@ -19,7 +19,8 @@ export const ScanScreen = () => {
     const hashFile = () => dispatch({ type: 'HASH_FILE' });
     const processDeepest = () => dispatch({ type: 'PROCESS_DEEPEST' });
     const saveScanningPath = path => dispatch({ type: 'SAVE_SCANNING_PATH', payload: { path } });
-    const scan = () => dispatch({ type: 'SCAN' });
+    const scanStart = () => dispatch({ type: 'SCAN_START' });
+    const scanStop = () => dispatch({ type: 'SCAN_STOP' });
 
     const files = useSelector(state => state.files);
 
@@ -32,8 +33,11 @@ export const ScanScreen = () => {
                 <button type="button" onClick={() => saveScanningPath(path)}>
                     ADD
                 </button>
-                <button type="button" onClick={() => scan(path)}>
-                    SCAN
+                <button type="button" onClick={() => scanStart(path)}>
+                    SCAN START
+                </button>
+                <button type="button" onClick={() => scanStop(path)}>
+                    SCAN STOP
                 </button>
                 <button type="button" onClick={processDeepest}>
                     PROCESS DEEPEST

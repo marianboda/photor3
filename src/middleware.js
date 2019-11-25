@@ -24,8 +24,11 @@ export const requester = store => next => action => {
                 store.dispatch({ type: 'GET_FILES' })
             );
             return next(action);
-        case 'SCAN':
-            post('/scan', action.payload);
+        case 'SCAN_START':
+            post('/scan-start', action.payload);
+            return next(action);
+        case 'SCAN_STOP':
+            post('/scan-stop', action.payload);
             return next(action);
         default:
             return next(action);

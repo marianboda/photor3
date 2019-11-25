@@ -16,7 +16,7 @@ const setState = change => {
 app.listen(port, () => console.log(`Listening on port ${port}`));
 app.use(express.json());
 
-app.post('/scan', async (req, res) => {
+app.post('/scan-start', async (req, res) => {
     await initScan();
     setState({ isScanning: true });
     res.send({});
@@ -26,6 +26,11 @@ app.post('/scan', async (req, res) => {
             setState({ isScanning: false });
         }
     }
+});
+
+app.post('/scan-stop', async (req, res) => {
+    setState({ isScanning: false });
+    res.send({});
 });
 
 app.post('/scanning-path', async (req, res) => {
