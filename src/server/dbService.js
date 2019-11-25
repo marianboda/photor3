@@ -1,59 +1,74 @@
+import sqlite from 'sqlite3';
 import R from 'ramda';
+import dayjs from 'dayjs';
+import { DATE_FORMAT } from './utils.js';
 
 const { without } = R;
 
-export const saveDir = dir => {
+const db = new sqlite.Database('./data/db.sqlite');
+
+async function dbGet(query) {
+    console.log('dbGet query', query);
+    return new Promise((resolve, reject) => {
+        db.all(query, (err, data) => {
+            console.log('in promise', err, data);
+            if (err) return reject(err);
+            return resolve(data);
+        });
+    });
+}
+
+async function dbSave(query) {
+    console.log('dbSave query', query);
+    return new Promise((resolve, reject) => {
+        db.exec(query, (err, data) => {
+            console.log('in promise', err, data);
+            if (err) return reject(err);
+            return resolve(data);
+        });
+    });
+}
+
+export const getScanningPaths = () => dbGet('SELECT * FROM scanning_path');
+export const getUnscannedDir = async () => {
+    const q = 'SELECT * FROM dir WHERE scanTime is NULL limit 1';
+    const result = await dbGet(q);
+    return result[0] || null;
+};
+
+const getSaveDirQuery = dir => {
     const keys = without(['isDir', 'dir', 'size'], Object.keys(dir));
     const vals = keys.map(key => `"${dir[key]}"`);
     return `INSERT OR IGNORE INTO dir (${keys.join(',')}) VALUES (${vals.join(',')})`;
 };
 
-export const getScanningPaths = () => 'SELECT * FROM scanning_path';
-export const saveScanningPath = path => {
-    return [`INSERT OR IGNORE INTO scanning_path (path) VALUES (?)`, [path]];
-};
-
-export const saveFile = file => {
+const getSaveFileQuery = file => {
     const keys = without(['isDir'], Object.keys(file));
     const vals = keys.map(key => `"${file[key]}"`);
     return `INSERT OR IGNORE INTO file (${keys.join(',')}) VALUES (${vals.join(',')})`;
 };
 
-export const save = files => {
-    const saveOne = f => (f.isDir ? saveDir(f) : saveFile(f));
+const getSaveQuery = files => {
+    const getSaveOneQuery = f => (f.isDir ? getSaveDirQuery(f) : getSaveFileQuery(f));
     if (Array.isArray(files)) {
-        return files.map(saveOne).join(';\n');
+        return files.map(getSaveOneQuery).join(';\n');
     }
-    return saveOne(files);
+    return getSaveOneQuery(files);
 };
 
-export const getFiles = () => 'SELECT * FROM file LIMIT 100';
-
-export const getDeepestUnprocessedDir = () => {
-    return 'select * FROM dir WHERE deepFilesCount IS NULL ORDER BY length(path) DESC LIMIT 1';
+export const save = async files => {
+    console.log('------- SAVE QUERY -------------------');
+    console.log(getSaveQuery(files));
+    console.log('------- ---------- -------------------');
+    const result = await dbSave(getSaveQuery(files));
+    console.log(' - ', result);
+    return result;
 };
 
-export const getFilesInDir = dir => {
-    return `select * FROM file WHERE dir="${dir}"`;
+const getDirScanTimeUpdateQuery = path => {
+    return `UPDATE dir SET scanTime='${dayjs().format(DATE_FORMAT)}' WHERE path='${path}'`;
 };
 
-export const getDirsInDir = dir => {
-    return `select * FROM dir WHERE SUBSTR(path, 1, ${dir.length + 1})="${dir}/"`;
+export const updateDirScanTime = async path => {
+    return dbSave(getDirScanTimeUpdateQuery(path));
 };
-
-export const updateDir = (id, data) => {
-    const values = Object.entries(data).reduce((acc, [key, value]) => {
-        const entry = `${key} = "${value}"`;
-        return [...acc, entry];
-    }, []);
-    const valuesString = values.join(', ');
-
-    return `UPDATE dir SET ${valuesString} WHERE id=${id}`;
-};
-
-export const getUnhashedFile = () => 'SELECT * FROM file WHERE hash IS NULL LIMIT 1';
-
-export const updateFileHash = (fileId, hash) => `UPDATE file SET hash="${hash}" WHERE id=${fileId}`;
-
-export const getFileStats = () =>
-    'SELECT COUNT(hash) as hashedCount, COUNT(id) as allCount FROM file';

@@ -13,7 +13,7 @@ const { flatMap, map, filter, /* take, */ tap, catchError } = RxOps;
 const { isEmpty } = R;
 const getStat = promisify(fs.lstat);
 
-const DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss.SSS';
+export const DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss.SSS';
 
 const filesInDir = bindNodeCallback(fs.readdir);
 const statFile = bindNodeCallback(fs.stat);
@@ -51,13 +51,13 @@ const transformFile = dir => file =>
                 size: !sf.isDirectory() ? sf.size : 0,
                 mTime: dayjs(sf.mtime).format(DATE_FORMAT),
                 birthTime: dayjs(sf.birthtime).format(DATE_FORMAT),
-                scanTime: dayjs().format(DATE_FORMAT)
-            }))
+                scanTime: dayjs().format(DATE_FORMAT),
+            })),
         );
 
 const addHashToObject = obj => hash => ({
     ...obj,
-    hash
+    hash,
 });
 
 const addHash = file =>
@@ -81,7 +81,7 @@ export const listFiles = dir => {
         }),
         tap(i => console.log('should be hashing', i.path)),
         flatMap(addHash),
-        tap(i => console.log('after map', i))
+        tap(i => console.log('after map', i)),
     );
     return file$;
 };
@@ -134,7 +134,7 @@ export const getReaddirIterable = path => {
             }
 
             return asyncDone();
-        }
+        },
     };
     return iterable;
 };
@@ -152,7 +152,7 @@ export const getFileObject = async (rawDir, file = '') => {
         size: !stat.isDirectory() ? stat.size : 0,
         mTime: dayjs(stat.mtime).format(DATE_FORMAT),
         birthTime: dayjs(stat.birthtime).format(DATE_FORMAT),
-        scanTime: dayjs().format(DATE_FORMAT)
+        ...(stat.isDirectory() ? {} : { scanTime: dayjs().format(DATE_FORMAT) }),
     };
 };
 
@@ -189,13 +189,15 @@ export const getReaddirRecursiveIterable = path => {
             }
 
             return { value: file, done };
-        }
+        },
     };
     return iterable;
 };
 
 export const scanDir = async path => {
     console.log('scanning: ', path);
+    const thisFile = await getFileObject(path);
+    console.log('this file: ', thisFile);
     const iter = getReaddirIterable(path);
     let result = [];
 
@@ -206,3 +208,7 @@ export const scanDir = async path => {
 
     return result;
 };
+
+// export const runScan = async () => {
+
+// }
