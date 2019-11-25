@@ -10,7 +10,7 @@ import { scanDir, getFileObject } from './utils.js';
 export const runScanCycle = async () => {
     const dirToScan = await getUnscannedDir();
     if (!dirToScan) {
-        return [];
+        return null;
     }
 
     const files = await scanDir(dirToScan.path);

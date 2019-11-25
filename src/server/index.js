@@ -5,13 +5,27 @@ import { runScanCycle, initScan, addScanningPath } from './scanService.js';
 const app = express();
 const port = process.env.PORT || 5000;
 
+let state = {
+    isScanning: false,
+};
+
+const setState = change => {
+    state = { ...state, ...change };
+};
+
 app.listen(port, () => console.log(`Listening on port ${port}`));
 app.use(express.json());
 
 app.post('/scan', async (req, res) => {
     await initScan();
-    const files = await runScanCycle();
-    return res.send(files);
+    setState({ isScanning: true });
+    res.send({});
+    while (state.isScanning) {
+        const files = await runScanCycle();
+        if (files === null) {
+            setState({ isScanning: false });
+        }
+    }
 });
 
 app.post('/scanning-path', async (req, res) => {

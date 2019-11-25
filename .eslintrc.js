@@ -30,5 +30,6 @@ module.exports = {
         "import/extensions": 0,
         "no-console": 0,
         "react/jsx-one-expression-per-line": 0,
+        "no-await-in-loop": 0,
     },
 };
