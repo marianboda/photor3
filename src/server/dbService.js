@@ -18,8 +18,19 @@ async function dbGet(query) {
     });
 }
 
-async function dbSave(query) {
+async function dbSave(query, params) {
     console.log('dbSave query', query);
+    return new Promise((resolve, reject) => {
+        db.run(query, params, (err, data) => {
+            console.log('in promise', err, data);
+            if (err) return reject(err);
+            return resolve(data);
+        });
+    });
+}
+
+async function dbExec(query) {
+    console.log('dbExec query', query);
     return new Promise((resolve, reject) => {
         db.exec(query, (err, data) => {
             console.log('in promise', err, data);
@@ -60,7 +71,7 @@ export const save = async files => {
     console.log('------- SAVE QUERY -------------------');
     console.log(getSaveQuery(files));
     console.log('------- ---------- -------------------');
-    const result = await dbSave(getSaveQuery(files));
+    const result = await dbExec(getSaveQuery(files));
     console.log(' - ', result);
     return result;
 };
@@ -71,4 +82,8 @@ const getDirScanTimeUpdateQuery = path => {
 
 export const updateDirScanTime = async path => {
     return dbSave(getDirScanTimeUpdateQuery(path));
+};
+
+export const saveScanningPath = async path => {
+    return dbSave(`INSERT OR IGNORE INTO scanning_path (path) VALUES (?)`, [path]);
 };
