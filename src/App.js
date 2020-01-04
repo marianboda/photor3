@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { Header } from './Header';
 import './App.scss';
 import { ScanScreen } from './ScanScreen';
+import { ListScreen } from './ListScreen';
 
 function App() {
     return (
@@ -12,6 +13,9 @@ function App() {
                 <Switch>
                     <Route path="/scan">
                         <ScanScreen />
+                    </Route>
+                    <Route path="/list">
+                        <ListScreen />
                     </Route>
                     <Route path="/">Home</Route>
                 </Switch>

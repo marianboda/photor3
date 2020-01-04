@@ -8,8 +8,14 @@
         display: inline-block;
 
         a {
-            color: #FFF;
+            color: #F60;
             text-decoration: none;
+        }
+    }
+
+    li.active {
+        a {
+            color: #F96;
         }
     }
 }

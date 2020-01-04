@@ -1,16 +1,34 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import './MainMenu.scss';
 
-export const MainMenu = () => {
+const MenuLink = ({ link, text }) => {
+    const { pathname } = useLocation();
+    const className = pathname === link ? 'active' : '';
     return (
-        <ul className="Main-menu">
-            <li>
-                <Link to="/">Home</Link>
-            </li>
-            <li>
-                <Link to="/scan">Scan</Link>
-            </li>
-        </ul>
+        <li className={className}>
+            <Link to={link}>{text}</Link>
+        </li>
     );
+};
+
+export const MainMenu = () => {
+    const params = useLocation();
+
+    const links = [
+        {
+            link: '/',
+            text: 'Home',
+        },
+        {
+            link: '/scan',
+            text: 'Scan',
+        },
+        {
+            link: '/list',
+            text: 'List',
+        },
+    ]
+
+    return <ul className="Main-menu">{links.map(MenuLink)}</ul>;
 };
