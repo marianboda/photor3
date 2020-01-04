@@ -87,3 +87,7 @@ export const updateDirScanTime = async path => {
 export const saveScanningPath = async path => {
     return dbSave(`INSERT OR IGNORE INTO scanning_path (path) VALUES (?)`, [path]);
 };
+
+const getFilesQuery = () => 'SELECT * FROM file LIMIT 100';
+
+export const getFiles = () => dbGet(getFilesQuery());

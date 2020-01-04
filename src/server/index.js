@@ -1,6 +1,7 @@
 import express from 'express';
 
 import { runScanCycle, initScan, addScanningPath } from './scanService.js';
+import { getFiles } from './dbService.js';
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -38,10 +39,10 @@ app.post('/scanning-path', async (req, res) => {
     res.send(addScanningPath(path));
 });
 
-// app.get('/files', async (req, res) => {
-//     const data = await dbGet(getFiles());
-//     res.send(data);
-// });
+app.get('/files', async (req, res) => {
+    const data = await getFiles();
+    res.send(data);
+});
 
 // app.get('/stats', async (req, res) => {
 //     const data = await dbGet(getFileStats());
