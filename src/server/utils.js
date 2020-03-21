@@ -140,20 +140,24 @@ export const getReaddirIterable = path => {
 };
 
 export const getFileObject = async (rawDir, file = '') => {
-    const dir = Path.resolve(rawDir);
-    const filePath = Path.join(dir, file);
-    const stat = await getStat(filePath);
-
-    return {
-        name: file,
-        dir,
-        path: filePath,
-        isDir: stat.isDirectory(),
-        size: !stat.isDirectory() ? stat.size : 0,
-        mTime: dayjs(stat.mtime).format(DATE_FORMAT),
-        birthTime: dayjs(stat.birthtime).format(DATE_FORMAT),
-        ...(stat.isDirectory() ? {} : { scanTime: dayjs().format(DATE_FORMAT) }),
-    };
+    try {
+        const dir = Path.resolve(rawDir);
+        const filePath = Path.join(dir, file);
+        const stat = await getStat(filePath);
+        return {
+            name: file,
+            dir,
+            path: filePath,
+            isDir: stat.isDirectory(),
+            size: !stat.isDirectory() ? stat.size : 0,
+            mTime: dayjs(stat.mtime).format(DATE_FORMAT),
+            birthTime: dayjs(stat.birthtime).format(DATE_FORMAT),
+            ...(stat.isDirectory() ? {} : { scanTime: dayjs().format(DATE_FORMAT) }),
+        };
+    } catch (e) {
+        console.log('catchedError', e)
+        return null;
+    }
 };
 
 export const getReaddirRecursiveIterable = path => {

@@ -16,6 +16,12 @@ export const requester = store => next => action => {
             get('/files').then(r => store.dispatch({ type: 'SET_FILES', payload: r }));
             get('/stats').then(r => store.dispatch({ type: 'SET_STATS', payload: r }));
             return next(action);
+        case 'GET_DIRS':
+            get('/dirs').then(r => store.dispatch({ type: 'SET_DIRS', payload: r }));
+            return next(action);
+        case 'GET_SCANNING_PATHS':
+            get('/scanning-paths').then(r => store.dispatch({ type: 'SET_SCANNING_PATHS', payload: r }));
+            return next(action);
         case 'HASH_FILE':
             post('/hashFile').then(() => store.dispatch({ type: 'GET_FILES' }));
             return next(action);
@@ -29,6 +35,9 @@ export const requester = store => next => action => {
             return next(action);
         case 'SCAN_STOP':
             post('/scan-stop', action.payload);
+            return next(action);
+        case 'PROCESS_DEEPEST':
+            post('/process-deepest-dir');
             return next(action);
         default:
             return next(action);

@@ -1,7 +1,7 @@
 import express from 'express';
 
 import { runScanCycle, initScan, addScanningPath } from './scanService.js';
-import { getFiles } from './dbService.js';
+import { getFiles, getDirs, getScanningPaths } from './dbService.js';
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -18,6 +18,7 @@ app.listen(port, () => console.log(`Listening on port ${port}`));
 app.use(express.json());
 
 app.post('/scan-start', async (req, res) => {
+    console.log('starting scan');
     await initScan();
     setState({ isScanning: true });
     res.send({});
@@ -44,12 +45,23 @@ app.get('/files', async (req, res) => {
     res.send(data);
 });
 
-// app.get('/stats', async (req, res) => {
-//     const data = await dbGet(getFileStats());
-//     res.send(data[0]);
-// });
+app.get('/dirs', async (req, res) => {
+    const data = await getDirs();
+    res.send(data);
+});
 
-// app.post('/processDeepestDir', async (req, res) => {
+app.get('/stats', async (req, res) => {
+    const data = await dbGet(getFileStats());
+    res.send(data[0]);
+});
+
+app.get('/scanning-paths', async (req, res) => {
+    const data = await getScanningPaths();
+    res.send(data);
+});
+
+
+// app.post('/process-deepest-dir', async (req, res) => {
 //     const [dir] = await dbGet(getDeepestUnprocessedDir());
 //     const files = await dbGet(getFilesInDir(dir.path));
 //     const dirs = await dbGet(getDirsInDir(dir.path));

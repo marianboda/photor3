@@ -11,8 +11,14 @@ const reducer = (state = initialState, action) => {
     switch (action.type) {
         case 'GET_FILES':
             return { ...state, files: [] };
+        case 'GET_DIRS':
+            return { ...state, dirs: [] };
+        case 'SET_SCANNING_PATHS':
+            return { ...state, scanningPaths: action.payload };
         case 'SET_FILES':
             return { ...state, files: action.payload };
+        case 'SET_DIRS':
+            return { ...state, dirs: action.payload };
         case 'SET_STATS':
             return { ...state, stats: action.payload };
         default:

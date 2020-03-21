@@ -11,7 +11,11 @@ async function dbGet(query) {
     console.log('dbGet query', query);
     return new Promise((resolve, reject) => {
         db.all(query, (err, data) => {
-            console.log('in promise', err, data);
+            if (err) {
+                console.log('db.all promise rejected', err);
+            } else {
+                console.log('db.all success', data);
+            }
             if (err) return reject(err);
             return resolve(data);
         });
@@ -22,7 +26,11 @@ async function dbSave(query, params) {
     console.log('dbSave query', query);
     return new Promise((resolve, reject) => {
         db.run(query, params, (err, data) => {
-            console.log('in promise', err, data);
+            if (err) {
+                console.log('db.run promise rejected', err);
+            } else {
+                console.log('db.run success', data);
+            }
             if (err) return reject(err);
             return resolve(data);
         });
@@ -30,10 +38,15 @@ async function dbSave(query, params) {
 }
 
 async function dbExec(query) {
+    if (!query) return;
     console.log('dbExec query', query);
     return new Promise((resolve, reject) => {
         db.exec(query, (err, data) => {
-            console.log('in promise', err, data);
+            if (err) {
+                console.log('db.exec promise rejected', err);
+            } else {
+                console.log('db.exec success', data);
+            }
             if (err) return reject(err);
             return resolve(data);
         });
@@ -60,7 +73,10 @@ const getSaveFileQuery = file => {
 };
 
 const getSaveQuery = files => {
-    const getSaveOneQuery = f => (f.isDir ? getSaveDirQuery(f) : getSaveFileQuery(f));
+    const getSaveOneQuery = f => {
+        if (!f) return null;
+        return f.isDir ? getSaveDirQuery(f) : getSaveFileQuery(f);
+    }
     if (Array.isArray(files)) {
         return files.map(getSaveOneQuery).join(';\n');
     }
@@ -91,3 +107,13 @@ export const saveScanningPath = async path => {
 const getFilesQuery = () => 'SELECT * FROM file LIMIT 100';
 
 export const getFiles = () => dbGet(getFilesQuery());
+
+const getDirsQuery = () => 'SELECT dir as path, COUNT(id) as filesCount FROM file GROUP BY dir';
+
+
+export const getDirs = () => dbGet(getDirsQuery());
+
+
+export const getDeepestUnprocessedDir = async () => {
+    return dbGet('select * FROM dir WHERE deepFilesCount IS NULL ORDER BY length(path) DESC LIMIT 1');
+};
