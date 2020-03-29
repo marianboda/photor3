@@ -108,11 +108,9 @@ const getFilesQuery = () => 'SELECT * FROM file LIMIT 100';
 
 export const getFiles = () => dbGet(getFilesQuery());
 
-const getDirsQuery = () => 'SELECT dir as path, COUNT(id) as filesCount FROM file GROUP BY dir';
+const getDirsQuery = () => 'SELECT dir as path, MIN(name) as firstFile, MAX(name) as lastFile, COUNT(id) as filesCount FROM file GROUP BY dir;';
 
-
-export const getDirs = () => dbGet(getDirsQuery());
-
+export const getDirs = async() => dbGet(getDirsQuery());
 
 export const getDeepestUnprocessedDir = async () => {
     return dbGet('select * FROM dir WHERE deepFilesCount IS NULL ORDER BY length(path) DESC LIMIT 1');
