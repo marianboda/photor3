@@ -144,9 +144,16 @@ export const getFileObject = async (rawDir, file = '') => {
         const dir = Path.resolve(rawDir);
         const filePath = Path.join(dir, file);
         const stat = await getStat(filePath);
+        const extension = file.includes('.')
+            ? R.last(file.split('.'))
+            : '';
+        const extensionObject = stat.isDirectory()
+            ? {}
+            : { extension };
         return {
             name: file,
             dir,
+            ...extensionObject,
             path: filePath,
             isDir: stat.isDirectory(),
             size: !stat.isDirectory() ? stat.size : 0,

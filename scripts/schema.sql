@@ -16,6 +16,7 @@ CREATE UNIQUE INDEX "photo_path" ON "dir" ( "path" );
 CREATE TABLE "file"(
 	"id" Integer NOT NULL PRIMARY KEY AUTOINCREMENT,
 	"name" Text NOT NULL,
+	"extension" Text,
 	"path" Text NOT NULL,
 	"dir" Text NOT NULL,
 	"size" Integer,
