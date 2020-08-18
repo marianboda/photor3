@@ -1,42 +1,42 @@
-import fs from 'fs';
-import Path from 'path';
+import fs from 'fs'
+import Path from 'path'
 
-import RxJs from 'rxjs';
-import RxOps from 'rxjs/operators/index.js';
-import dayjs from 'dayjs';
-import R from 'ramda';
-import crypto from 'crypto';
-import { promisify } from 'util';
+import RxJs from 'rxjs'
+import RxOps from 'rxjs/operators/index.js'
+import dayjs from 'dayjs'
+import R from 'ramda'
+import crypto from 'crypto'
+import { promisify } from 'util'
 
-const { bindNodeCallback, of, merge, from } = RxJs;
-const { flatMap, map, filter, /* take, */ tap, catchError } = RxOps;
-const { isEmpty } = R;
-const getStat = promisify(fs.lstat);
+const { bindNodeCallback, of, merge, from } = RxJs
+const { flatMap, map, filter, /* take, */ tap, catchError } = RxOps
+const { isEmpty } = R
+const getStat = promisify(fs.lstat)
 
-export const DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss.SSS';
+export const DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss.SSS'
 
-const filesInDir = bindNodeCallback(fs.readdir);
-const statFile = bindNodeCallback(fs.stat);
+const filesInDir = bindNodeCallback(fs.readdir)
+const statFile = bindNodeCallback(fs.stat)
 
 export const hashFile = path => {
     return new Promise(resolve => {
-        console.log('path', path);
-        const fd = fs.createReadStream(path);
-        const hash = crypto.createHash('md5');
-        hash.setEncoding('hex');
+        console.log('path', path)
+        const fd = fs.createReadStream(path)
+        const hash = crypto.createHash('md5')
+        hash.setEncoding('hex')
 
         fd.on('end', () => {
-            hash.end();
-            const hashString = hash.read();
-            console.log(hashString);
-            resolve(hashString);
-        });
+            hash.end()
+            const hashString = hash.read()
+            console.log(hashString)
+            resolve(hashString)
+        })
 
-        fd.pipe(hash);
-    });
-};
+        fd.pipe(hash)
+    })
+}
 
-const filenameFilter = file => !['.', '..'].includes(file);
+const filenameFilter = file => !['.', '..'].includes(file)
 
 const transformFile = dir => file =>
     statFile(Path.join(dir, file))
@@ -53,17 +53,17 @@ const transformFile = dir => file =>
                 birthTime: dayjs(sf.birthtime).format(DATE_FORMAT),
                 scanTime: dayjs().format(DATE_FORMAT),
             })),
-        );
+        )
 
 const addHashToObject = obj => hash => ({
     ...obj,
     hash,
-});
+})
 
 const addHash = file =>
     file.isDir
         ? from(new Promise(resolve => resolve(file)))
-        : from(hashFile(file.path).then(addHashToObject(file)));
+        : from(hashFile(file.path).then(addHashToObject(file)))
 
 export const listFiles = dir => {
     const file$ = filesInDir(dir).pipe(
@@ -75,36 +75,36 @@ export const listFiles = dir => {
         filter(i => !isEmpty(i)),
         flatMap(f => {
             if (f.isDir) {
-                return merge(of(f), listFiles(Path.join(dir, f.name)));
+                return merge(of(f), listFiles(Path.join(dir, f.name)))
             }
-            return of(f);
+            return of(f)
         }),
         tap(i => console.log('should be hashing', i.path)),
         flatMap(addHash),
         tap(i => console.log('after map', i)),
-    );
-    return file$;
-};
+    )
+    return file$
+}
 
 // Trial with async iterable
 
 const asyncDone = () =>
     new Promise(resolve => {
-        resolve({ done: true });
-    });
+        resolve({ done: true })
+    })
 
 const asyncValue = value =>
     new Promise(resolve => {
-        resolve({ done: false, value });
-    });
+        resolve({ done: false, value })
+    })
 
 export const getReaddirIterable = path => {
-    let buffer;
+    let buffer
     // const counter = 0;
 
     const iterable = {
         [Symbol.asyncIterator]() {
-            return this;
+            return this
         },
         next() {
             // counter++
@@ -115,41 +115,37 @@ export const getReaddirIterable = path => {
                 return new Promise(resolve => {
                     fs.readdir(path, (e, files) => {
                         if (e) {
-                            console.log(e);
-                            return resolve({ done: true });
+                            console.log(e)
+                            return resolve({ done: true })
                         }
                         if (files.length === 0) {
-                            return resolve({ done: true });
+                            return resolve({ done: true })
                         }
-                        buffer = files;
-                        const value = buffer.shift();
-                        return resolve({ done: false, value });
-                    });
-                });
+                        buffer = files
+                        const value = buffer.shift()
+                        return resolve({ done: false, value })
+                    })
+                })
             }
 
             if (buffer.length > 0) {
-                const value = buffer.shift();
-                return asyncValue(value);
+                const value = buffer.shift()
+                return asyncValue(value)
             }
 
-            return asyncDone();
+            return asyncDone()
         },
-    };
-    return iterable;
-};
+    }
+    return iterable
+}
 
 export const getFileObject = async (rawDir, file = '') => {
     try {
-        const dir = Path.resolve(rawDir);
-        const filePath = Path.join(dir, file);
-        const stat = await getStat(filePath);
-        const extension = file.includes('.')
-            ? R.last(file.split('.'))
-            : '';
-        const extensionObject = stat.isDirectory()
-            ? {}
-            : { extension };
+        const dir = Path.resolve(rawDir)
+        const filePath = Path.join(dir, file)
+        const stat = await getStat(filePath)
+        const extension = file.includes('.') ? R.last(file.split('.')) : ''
+        const extensionObject = stat.isDirectory() ? {} : { extension }
         return {
             name: file,
             dir,
@@ -160,65 +156,65 @@ export const getFileObject = async (rawDir, file = '') => {
             mTime: dayjs(stat.mtime).format(DATE_FORMAT),
             birthTime: dayjs(stat.birthtime).format(DATE_FORMAT),
             ...(stat.isDirectory() ? {} : { scanTime: dayjs().format(DATE_FORMAT) }),
-        };
+        }
     } catch (e) {
         console.log('catchedError', e)
-        return null;
+        return null
     }
-};
+}
 
 export const getReaddirRecursiveIterable = path => {
-    const iter = getReaddirIterable(path);
-    let innerIter = null;
-    const counter = 0;
+    const iter = getReaddirIterable(path)
+    let innerIter = null
+    const counter = 0
 
     const iterable = {
         [Symbol.asyncIterator]() {
-            return this;
+            return this
         },
         async next() {
             // counter++
             if (counter > 100) {
-                return { done: true };
+                return { done: true }
             }
 
             if (innerIter) {
-                const innerValue = await innerIter.next();
+                const innerValue = await innerIter.next()
                 if (!innerValue.done) {
-                    return innerValue;
+                    return innerValue
                 }
             }
 
-            const { value, done } = await iter.next();
-            if (done) return { done: true };
+            const { value, done } = await iter.next()
+            if (done) return { done: true }
 
-            const filePath = Path.join(path, value);
-            const file = await getFileObject(path, value);
+            const filePath = Path.join(path, value)
+            const file = await getFileObject(path, value)
 
             if (file.isDir) {
-                innerIter = getReaddirRecursiveIterable(filePath);
+                innerIter = getReaddirRecursiveIterable(filePath)
             }
 
-            return { value: file, done };
+            return { value: file, done }
         },
-    };
-    return iterable;
-};
+    }
+    return iterable
+}
 
 export const scanDir = async path => {
-    console.log('scanning: ', path);
-    const thisFile = await getFileObject(path);
-    console.log('this file: ', thisFile);
-    const iter = getReaddirIterable(path);
-    let result = [];
+    console.log('scanning: ', path)
+    const thisFile = await getFileObject(path)
+    console.log('this file: ', thisFile)
+    const iter = getReaddirIterable(path)
+    let result = []
 
     for await (const i of iter) {
-        const file = await getFileObject(path, i);
-        result = [...result, file];
+        const file = await getFileObject(path, i)
+        result = [...result, file]
     }
 
-    return result;
-};
+    return result
+}
 
 // export const runScan = async () => {
 
