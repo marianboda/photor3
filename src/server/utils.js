@@ -216,6 +216,8 @@ export const scanDir = async path => {
     return result
 }
 
-// export const runScan = async () => {
-
-// }
+export const lowercaseFirstLetter = str => {
+    if (str === '' || typeof str === 'undefined') return str
+    console.log(str)
+    return str.charAt(0).toLowerCase() + str.slice(1)
+}

@@ -6,8 +6,10 @@ async function post(path, body = {}) {
     }).then(r => r.json())
 }
 
-async function get(path) {
-    return fetch(path)
+async function get(path, params) {
+    const url = new URL(path, window.location.origin)
+    if (params) url.search = new URLSearchParams(params).toString()
+    return fetch(url)
         .then(r => r.json())
         .catch(e => console.error(e))
 }
@@ -18,11 +20,23 @@ export const requester = store => next => action => {
             get('/files').then(r => store.dispatch({ type: 'SET_FILES', payload: r }))
             get('/stats').then(r => store.dispatch({ type: 'SET_STATS', payload: r }))
             return next(action)
-        case 'GET_DIRS':
-            get('/dirs')
+        case 'SELECT_DIR':
+            store.dispatch({ type: 'GET_DIRS', payload: action.payload })
+            return next(action)
+        case 'GET_DISKS': {
+            get('/disks')
+                .then(r => store.dispatch({ type: 'SET_DISKS', payload: r }))
+                .catch(e => console.error(e))
+            return next(action)
+        }
+        case 'GET_DIRS': {
+            const dir = action.payload
+            const params = dir ? { dir: action.payload } : undefined
+            get('/dirs', params)
                 .then(r => store.dispatch({ type: 'SET_DIRS', payload: r }))
                 .catch(e => console.error(e))
             return next(action)
+        }
         case 'GET_SCANNING_PATHS':
             get('/scanning-paths').then(r =>
                 store.dispatch({ type: 'SET_SCANNING_PATHS', payload: r }),

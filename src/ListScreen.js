@@ -1,14 +1,16 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { sort, prop, descend } from 'ramda'
-import { DirView } from './components/DirView'
+import { DirListing } from './DirListing'
 
 export const ListScreen = () => {
     const dispatch = useDispatch()
     const getDirs = () => dispatch({ type: 'GET_DIRS' })
 
     const dirs = useSelector(state => state.dirs)
+    const selectedDir = useSelector(state => state.selectedDir)
     // const scanningPaths = useSelector(state => state.scanningPaths);
+
+    const handlePathClick = data => dispatch({ type: 'SELECT_DIR', payload: data.path })
 
     return (
         <div className="Scan-screen">
@@ -17,11 +19,7 @@ export const ListScreen = () => {
                     LIST DIRS
                 </button>
             </div>
-            <div className="Files-content">
-                <div>
-                    {dirs && sort(descend(prop('filesCount')), dirs).map(i => <DirView data={i} />)}
-                </div>
-            </div>
+            <DirListing dirs={dirs} selectedDir={selectedDir} onClick={handlePathClick} />
         </div>
     )
 }

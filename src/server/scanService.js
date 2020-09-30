@@ -1,3 +1,5 @@
+import util from 'util'
+import child_process from 'child_process'
 import {
     getUnscannedDir,
     save,
@@ -5,7 +7,10 @@ import {
     getScanningPaths,
     saveScanningPath,
 } from './dbService.js'
-import { scanDir, getFileObject } from './utils.js'
+import { getDiskList, isWindows } from './platformUtils.js'
+import { scanDir, getFileObject, lowercaseFirstLetter } from './utils.js'
+
+const exec = util.promisify(child_process.exec)
 
 export const runScanCycle = async () => {
     const dirToScan = await getUnscannedDir()
@@ -29,3 +34,7 @@ export const initScan = async () => {
 }
 
 export const addScanningPath = saveScanningPath
+
+export const getDisks = async () => {
+    return getDiskList()
+}

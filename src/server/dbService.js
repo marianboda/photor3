@@ -1,20 +1,21 @@
 import sqlite from 'sqlite3'
 import R from 'ramda'
 import dayjs from 'dayjs'
+import { isWindows, pathToUnipath } from './platformUtils.js'
 import { DATE_FORMAT } from './utils.js'
 
 const { without } = R
 
 const db = new sqlite.Database('./data/db.sqlite')
 
-async function dbGet(query) {
+export async function dbGet(query) {
     console.log('dbGet query', query)
     return new Promise((resolve, reject) => {
         db.all(query, (err, data) => {
             if (err) {
-                console.log('db.all promise rejected', err)
+                console.log('db.all promise rejected')
             } else {
-                console.log('db.all success', data)
+                console.log('db.all success')
             }
             if (err) return reject(err)
             return resolve(data)
@@ -38,7 +39,7 @@ async function dbSave(query, params) {
 }
 
 async function dbExec(query) {
-    if (!query) return
+    if (!query) return null
     console.log('dbExec query', query)
     return new Promise((resolve, reject) => {
         db.exec(query, (err, data) => {
@@ -61,7 +62,8 @@ export const getUnscannedDir = async () => {
 }
 
 const getSaveDirQuery = dir => {
-    const keys = without(['isDir', 'dir', 'size'], Object.keys(dir))
+    console.log('saving dir', dir)
+    const keys = without(['isDir', 'size'], Object.keys(dir))
     const vals = keys.map(key => `"${dir[key]}"`)
     return `INSERT OR IGNORE INTO dir (${keys.join(',')}) VALUES (${vals.join(',')})`
 }
@@ -101,17 +103,45 @@ export const updateDirScanTime = async path => {
 }
 
 export const saveScanningPath = async path => {
-    return dbSave(`INSERT OR IGNORE INTO scanning_path (path) VALUES (?)`, [path])
+    console.log('isWin', isWindows())
+    if (isWindows()) {
+        const volumeLetter = path.split(':')[0]
+
+        console.log('volumeLetter', volumeLetter)
+
+        pathToUnipath(path)
+    }
+    // return dbSave(`INSERT OR IGNORE INTO scanning_path (path) VALUES (?)`, [path])
+    // return dbSave(`INSERT OR IGNORE INTO disk (path) VALUES (?)`, [path])
 }
 
 const getFilesQuery = () => 'SELECT * FROM file LIMIT 100'
 
 export const getFiles = () => dbGet(getFilesQuery())
 
-const getDirsQuery = () =>
-    'SELECT dir as path, MIN(name) as firstFile, MAX(name) as lastFile, COUNT(id) as filesCount FROM file GROUP BY dir;'
+const getDirsQuery = (dir = '') => `SELECT * FROM dir WHERE dir="${dir}";`
+// `SELECT dir as path, MIN(name) as firstFile, MAX(name) as lastFile, COUNT(id) as filesCount FROM file WHERE dir="${dir}" GROUP BY dir;`
 
-export const getDirs = async () => dbGet(getDirsQuery())
+const sanitizePath = path => {
+    if (path.match(/[A-Z]:/)) {
+        return `${path}\\`
+    }
+    return path
+}
+
+export const getDirs = async root => {
+    console.log('root', root)
+    if (!root) {
+        const scanningPaths = await getScanningPaths()
+        return scanningPaths.map(i => ({
+            path: i.path,
+            firstFile: '',
+            lastFile: '',
+            filesCount: 0,
+        }))
+    }
+    return dbGet(getDirsQuery(sanitizePath(root)))
+}
 
 export const getDeepestUnprocessedDir = async () => {
     return dbGet(

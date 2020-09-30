@@ -13,7 +13,7 @@ const MenuLink = ({ link, text }) => {
 };
 
 export const MainMenu = () => {
-    const params = useLocation();
+    // const params = useLocation()
 
     const links = [
         {

@@ -1,23 +1,27 @@
-import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { take } from 'ramda';
-import { FileView } from './components/FileItem';
-
+import React, { useState, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { take } from 'ramda'
+import { FileView } from './components/FileItem'
 
 export const ScanScreen = () => {
-    const dispatch = useDispatch();
-    const getFiles = () => dispatch({ type: 'GET_FILES' });
-    const hashFile = () => dispatch({ type: 'HASH_FILE' });
-    const processDeepest = () => dispatch({ type: 'PROCESS_DEEPEST' });
-    const saveScanningPath = path => dispatch({ type: 'SAVE_SCANNING_PATH', payload: { path } });
-    const getScanningPath = path => dispatch({ type: 'GET_SCANNING_PATHS', payload: { path } });
-    const scanStart = () => dispatch({ type: 'SCAN_START' });
-    const scanStop = () => dispatch({ type: 'SCAN_STOP' });
+    const dispatch = useDispatch()
+    const getFiles = () => dispatch({ type: 'GET_FILES' })
+    const hashFile = () => dispatch({ type: 'HASH_FILE' })
+    const processDeepest = () => dispatch({ type: 'PROCESS_DEEPEST' })
+    const saveScanningPath = path => dispatch({ type: 'SAVE_SCANNING_PATH', payload: { path } })
+    const getScanningPath = path => dispatch({ type: 'GET_SCANNING_PATHS', payload: { path } })
+    const scanStart = () => dispatch({ type: 'SCAN_START' })
+    const scanStop = () => dispatch({ type: 'SCAN_STOP' })
 
-    const files = useSelector(state => state.files);
-    const scanningPaths = useSelector(state => state.scanningPaths);
+    const files = useSelector(state => state.files)
+    const scanningPaths = useSelector(state => state.scanningPaths)
+    const disks = useSelector(state => state.disks)
 
-    const [path, setPath] = useState('/Users/marianboda/temp/a');
+    const [path, setPath] = useState('/Users/marianboda/temp/a')
+
+    useEffect(() => {
+        dispatch({ type: 'GET_DISKS' })
+    }, [])
 
     return (
         <div className="Scan-screen">
@@ -51,6 +55,16 @@ export const ScanScreen = () => {
             <div className="Files-content">
                 <div>{files && take(30, files).map(i => <FileView data={i} />)}</div>
             </div>
+            <div>
+                <li>
+                    {disks &&
+                        disks.map(i => (
+                            <li>
+                                {i.caption} | [{i.fileSystem}] | {i.volumeName}
+                            </li>
+                        ))}
+                </li>
+            </div>
         </div>
-    );
-};
+    )
+}
