@@ -37,8 +37,8 @@ app.post('/scan-stop', async (req, res) => {
 })
 
 app.post('/scanning-path', async (req, res) => {
-    const { path } = req.body
-    res.send(addScanningPath(path))
+    const { disk, path } = req.body
+    res.send(addScanningPath(disk, path))
 })
 
 app.get('/files', async (req, res) => {

@@ -8,7 +8,7 @@ export const ScanScreen = () => {
     const getFiles = () => dispatch({ type: 'GET_FILES' })
     const hashFile = () => dispatch({ type: 'HASH_FILE' })
     const processDeepest = () => dispatch({ type: 'PROCESS_DEEPEST' })
-    const saveScanningPath = path => dispatch({ type: 'SAVE_SCANNING_PATH', payload: { path } })
+    const saveScanningPath = (disk, path) => dispatch({ type: 'SAVE_SCANNING_PATH', payload: { disk, path } })
     const getScanningPath = path => dispatch({ type: 'GET_SCANNING_PATHS', payload: { path } })
     const scanStart = () => dispatch({ type: 'SCAN_START' })
     const scanStop = () => dispatch({ type: 'SCAN_STOP' })
@@ -17,6 +17,7 @@ export const ScanScreen = () => {
     const scanningPaths = useSelector(state => state.scanningPaths)
     const disks = useSelector(state => state.disks)
 
+    const [disk, setDisk] = useState('')
     const [path, setPath] = useState('/Users/marianboda/temp/a')
 
     useEffect(() => {
@@ -26,8 +27,9 @@ export const ScanScreen = () => {
     return (
         <div className="Scan-screen">
             <div>
+                <input type="text" value={disk} onChange={e => setDisk(e.target.value)} />
                 <input type="text" value={path} onChange={e => setPath(e.target.value)} />
-                <button type="button" onClick={() => saveScanningPath(path)}>
+                <button type="button" onClick={() => saveScanningPath(disk, path)}>
                     ADD
                 </button>
                 <button type="button" onClick={() => scanStart(path)}>

@@ -7,7 +7,7 @@ import {
     getScanningPaths,
     saveScanningPath,
 } from './dbService.js'
-import { getDiskList, isWindows } from './platformUtils.js'
+import { getDiskList, isWindows, unipathToPath } from './platformUtils.js'
 import { scanDir, getFileObject, lowercaseFirstLetter } from './utils.js'
 
 const exec = util.promisify(child_process.exec)
@@ -28,7 +28,7 @@ export const initScan = async () => {
     const scanningPaths = await getScanningPaths()
 
     for await (const path of scanningPaths) {
-        const dirObject = await getFileObject(path.path)
+        const dirObject = await getFileObject(unipathToPath(path.path))
         await save(dirObject)
     }
 }

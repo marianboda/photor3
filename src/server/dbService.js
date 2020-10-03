@@ -1,7 +1,7 @@
 import sqlite from 'sqlite3'
 import R from 'ramda'
 import dayjs from 'dayjs'
-import { isWindows, pathToUnipath } from './platformUtils.js'
+import { isWindows, isMac, isUnix, pathToUnipath } from './platformUtils.js'
 import { DATE_FORMAT } from './utils.js'
 
 const { without } = R
@@ -102,14 +102,19 @@ export const updateDirScanTime = async path => {
     return dbSave(getDirScanTimeUpdateQuery(path))
 }
 
-export const saveScanningPath = async path => {
+export const saveScanningPath = async (disk, path) => {
     console.log('isWin', isWindows())
     if (isWindows()) {
         const volumeLetter = path.split(':')[0]
 
         console.log('volumeLetter', volumeLetter)
 
-        pathToUnipath(path)
+        pathToUnipath(disk, path)
+    }
+    if (isMac() || isUnix()) {
+        console.log(`have to save disk: ${disk}, path: ${path}`)
+        const unipath = await pathToUnipath(disk, path)
+        return dbSave(`INSERT OR IGNORE INTO scanning_path (path) VALUES (?)`, [unipath])
     }
     // return dbSave(`INSERT OR IGNORE INTO scanning_path (path) VALUES (?)`, [path])
     // return dbSave(`INSERT OR IGNORE INTO disk (path) VALUES (?)`, [path])
