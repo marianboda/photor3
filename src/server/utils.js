@@ -8,6 +8,8 @@ import R from 'ramda'
 import crypto from 'crypto'
 import { promisify } from 'util'
 
+import { unipathToPath, pathToUnipath } from './platformUtils.js'
+
 const { bindNodeCallback, of, merge, from } = RxJs
 const { flatMap, map, filter, /* take, */ tap, catchError } = RxOps
 const { isEmpty } = R
@@ -141,20 +143,24 @@ export const getReaddirIterable = path => {
 
 export const getFileObject = async (rawDir, file = '') => {
     try {
-        const dir = Path.resolve(rawDir)
+        const dir = Path.resolve(await unipathToPath(rawDir))
         const filePath = Path.join(dir, file)
         const stat = await getStat(filePath)
         const extension = file.includes('.') ? R.last(file.split('.')) : ''
         const extensionObject = stat.isDirectory() ? {} : { extension }
+        console.log('mtime', stat.mtime)
+        console.log('unix()', dayjs(stat.mtime).unix())
+        
         return {
             name: file,
-            dir,
+            disk: 1,
+            dir: await pathToUnipath('', dir),
             ...extensionObject,
-            path: filePath,
+            // path: await pathToUnipath('', filePath),
             isDir: stat.isDirectory(),
             size: !stat.isDirectory() ? stat.size : 0,
-            mTime: dayjs(stat.mtime).format(DATE_FORMAT),
-            birthTime: dayjs(stat.birthtime).format(DATE_FORMAT),
+            mTime: dayjs(stat.mtime).unix(),
+            birthTime: dayjs(stat.birthtime).unix(),
             ...(stat.isDirectory() ? {} : { scanTime: dayjs().format(DATE_FORMAT) }),
         }
     } catch (e) {
@@ -189,7 +195,7 @@ export const getReaddirRecursiveIterable = path => {
             if (done) return { done: true }
 
             const filePath = Path.join(path, value)
-            const file = await getFileObject(path, value)
+            const file = await getFileObject(pathToUnipath(path), value)
 
             if (file.isDir) {
                 innerIter = getReaddirRecursiveIterable(filePath)
@@ -205,7 +211,7 @@ export const scanDir = async path => {
     console.log('scanning: ', path)
     const thisFile = await getFileObject(path)
     console.log('this file: ', thisFile)
-    const iter = getReaddirIterable(path)
+    const iter = getReaddirIterable(unipathToPath(path))
     let result = []
 
     for await (const i of iter) {

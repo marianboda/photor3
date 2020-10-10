@@ -1,7 +1,7 @@
 import express from 'express'
 
-import { runScanCycle, initScan, addScanningPath, getDisks } from './scanService.js'
-import { getFiles, getDirs, getScanningPaths, dbGet } from './dbService.js'
+import { runScanCycle, initScan, addScanningPath, getMountedDisks } from './scanService.js'
+import { getFiles, getDirs, getScanningPaths, dbGet, getDisks } from './dbService.js'
 import { getFileStats } from './dbServiceLegacy.js'
 
 const app = express()
@@ -64,6 +64,12 @@ app.get('/scanning-paths', async (req, res) => {
 
 app.get('/disks', async (req, res) => {
     const data = await getDisks()
+    console.log('data')
+    res.send(data)
+})
+
+app.get('/mounted-disks', async (req, res) => {
+    const data = await getMountedDisks()
     console.log('data')
     res.send(data)
 })

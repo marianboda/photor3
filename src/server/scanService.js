@@ -20,7 +20,7 @@ export const runScanCycle = async () => {
 
     const files = await scanDir(dirToScan.path)
     await save(files)
-    await updateDirScanTime(dirToScan.path)
+    await updateDirScanTime(dirToScan.disk, dirToScan.path)
     return files
 }
 
@@ -28,13 +28,13 @@ export const initScan = async () => {
     const scanningPaths = await getScanningPaths()
 
     for await (const path of scanningPaths) {
-        const dirObject = await getFileObject(unipathToPath(path.path))
+        const dirObject = await getFileObject(path.path)
         await save(dirObject)
     }
 }
 
 export const addScanningPath = saveScanningPath
 
-export const getDisks = async () => {
+export const getMountedDisks = async () => {
     return getDiskList()
 }

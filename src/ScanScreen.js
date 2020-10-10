@@ -9,25 +9,30 @@ export const ScanScreen = () => {
     const hashFile = () => dispatch({ type: 'HASH_FILE' })
     const processDeepest = () => dispatch({ type: 'PROCESS_DEEPEST' })
     const saveScanningPath = (disk, path) => dispatch({ type: 'SAVE_SCANNING_PATH', payload: { disk, path } })
-    const getScanningPath = path => dispatch({ type: 'GET_SCANNING_PATHS', payload: { path } })
+    const getScanningPaths = () => dispatch({ type: 'GET_SCANNING_PATHS' })
     const scanStart = () => dispatch({ type: 'SCAN_START' })
     const scanStop = () => dispatch({ type: 'SCAN_STOP' })
 
     const files = useSelector(state => state.files)
     const scanningPaths = useSelector(state => state.scanningPaths)
     const disks = useSelector(state => state.disks)
+    const mountedDisks = useSelector(state => state.mountedDisks)
 
     const [disk, setDisk] = useState('')
     const [path, setPath] = useState('/Users/marianboda/temp/a')
 
     useEffect(() => {
         dispatch({ type: 'GET_DISKS' })
+        dispatch({ type: 'GET_MOUNTED_DISKS' })
+        getScanningPaths()
     }, [])
 
     return (
         <div className="Scan-screen">
             <div>
-                <input type="text" value={disk} onChange={e => setDisk(e.target.value)} />
+                <select onChange={e => setDisk(e.target.value)} value={disk}>
+                    {disks?.map(i => <option value={i.id}>{i.name}</option>)}
+                </select>
                 <input type="text" value={path} onChange={e => setPath(e.target.value)} />
                 <button type="button" onClick={() => saveScanningPath(disk, path)}>
                     ADD
@@ -44,28 +49,41 @@ export const ScanScreen = () => {
                 <button type="button" onClick={hashFile}>
                     HASH
                 </button>
-                <button type="button" onClick={getScanningPath}>
+                <button type="button" onClick={getScanningPaths}>
                     SCANNING_PATHS
                 </button>
                 <button type="button" onClick={getFiles}>
                     LIST FILES
                 </button>
             </div>
-            <div className="Files-content">
-                <ul>{scanningPaths && scanningPaths.map(i => <li>{i.path}</li>)}</ul>
+            <div>
+                <h2>Scanning paths:</h2>
+                <ul>{scanningPaths && scanningPaths.map(i => <li>{disks.find(d => d.id === i.disk)?.name} > {i.path}</li>)}</ul>
             </div>
             <div className="Files-content">
                 <div>{files && take(30, files).map(i => <FileView data={i} />)}</div>
             </div>
             <div>
-                <li>
-                    {disks &&
-                        disks.map(i => (
+                <h2>Mounted disks:</h2>
+                <ul>
+                    {mountedDisks &&
+                        mountedDisks.map(i => (
                             <li>
                                 {i.caption} | [{i.fileSystem}] | {i.volumeName}
                             </li>
                         ))}
-                </li>
+                </ul>
+            </div>
+            <div>
+                <h2>Available disks:</h2>
+                <ul>
+                    {disks &&
+                        disks.map(i => (
+                            <li>
+                                {i.id} | {i.name}
+                            </li>
+                        ))}
+                </ul>
             </div>
         </div>
     )

@@ -6,6 +6,7 @@ const initialState = {
     files: null,
     dirs: null,
     disks: null,
+    mountedDisks: null,
 }
 
 const reducer = (state = initialState, action) => {
@@ -26,6 +27,8 @@ const reducer = (state = initialState, action) => {
             return { ...state, stats: action.payload }
         case 'SET_DISKS':
             return { ...state, disks: action.payload }
+        case 'SET_MOUNTED_DISKS':
+            return { ...state, mountedDisks: action.payload }
         default:
             return state
     }

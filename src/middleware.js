@@ -29,6 +29,12 @@ export const requester = store => next => action => {
                 .catch(e => console.error(e))
             return next(action)
         }
+        case 'GET_MOUNTED_DISKS': {
+            get('/mounted-disks')
+                .then(r => store.dispatch({ type: 'SET_MOUNTED_DISKS', payload: r }))
+                .catch(e => console.error(e))
+            return next(action)
+        }
         case 'GET_DIRS': {
             const dir = action.payload
             const params = dir ? { dir: action.payload } : undefined

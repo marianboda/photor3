@@ -55,6 +55,9 @@ async function dbExec(query) {
 }
 
 export const getScanningPaths = () => dbGet('SELECT * FROM scanning_path')
+
+export const getDisks = () => dbGet('SELECT * FROM disk')
+
 export const getUnscannedDir = async () => {
     const q = 'SELECT * FROM dir WHERE scanTime is NULL limit 1'
     const result = await dbGet(q)
@@ -69,8 +72,8 @@ const getSaveDirQuery = dir => {
 }
 
 const getSaveFileQuery = file => {
-    const keys = without(['isDir'], Object.keys(file))
-    const vals = keys.map(key => `"${file[key]}"`)
+    const keys = without(['isDir', 'disk'], Object.keys(file))
+    const vals = keys.map(key => typeof file[key] === 'string' ? `"${file[key]}"` : file[key])
     return `INSERT OR IGNORE INTO file (${keys.join(',')}) VALUES (${vals.join(',')})`
 }
 
@@ -94,13 +97,18 @@ export const save = async files => {
     return result
 }
 
-const getDirScanTimeUpdateQuery = path => {
-    return `UPDATE dir SET scanTime='${dayjs().format(DATE_FORMAT)}' WHERE path='${path}'`
+const getDirScanTimeUpdateQuery = (disk, dir) => {
+    return `UPDATE dir SET scanTime='${dayjs().format(DATE_FORMAT)}' WHERE disk='${disk}' AND dir='${dir}'`
 }
 
-export const updateDirScanTime = async path => {
-    return dbSave(getDirScanTimeUpdateQuery(path))
+export const updateDirScanTime = async (disk, dir) => {
+    return dbSave(getDirScanTimeUpdateQuery(disk, dir))
 }
+
+// export const saveDisk = async (disk) => {
+//     console.log('saving disk', disk)
+//     return dbSave(`INSERT OR IGNORE INTO disk (name) VALUES (?)`, [disk])
+// }
 
 export const saveScanningPath = async (disk, path) => {
     console.log('isWin', isWindows())
@@ -113,8 +121,8 @@ export const saveScanningPath = async (disk, path) => {
     }
     if (isMac() || isUnix()) {
         console.log(`have to save disk: ${disk}, path: ${path}`)
-        const unipath = await pathToUnipath(disk, path)
-        return dbSave(`INSERT OR IGNORE INTO scanning_path (path) VALUES (?)`, [unipath])
+        if (!disk) throw new Error('no disk defined')
+        return dbSave(`INSERT OR IGNORE INTO scanning_path (disk, path) VALUES (?, ?)`, [disk, path])
     }
     // return dbSave(`INSERT OR IGNORE INTO scanning_path (path) VALUES (?)`, [path])
     // return dbSave(`INSERT OR IGNORE INTO disk (path) VALUES (?)`, [path])
