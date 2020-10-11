@@ -1,7 +1,7 @@
 import express from 'express'
 
-import { runScanCycle, initScan, addScanningPath, getMountedDisks } from './scanService.js'
-import { getFiles, getDirs, getScanningPaths, dbGet, getDisks } from './dbService.js'
+import { runScanCycle, initScan, addScanningPath, getMountedDisks, getScanningPaths } from './scanService.js'
+import { getFiles, getDirs, dbGet, getDisks } from './dbService.js'
 import { getFileStats } from './dbServiceLegacy.js'
 
 const app = express()
@@ -21,6 +21,7 @@ app.use(express.json())
 app.post('/scan-start', async (req, res) => {
     console.log('starting scan')
     await initScan()
+    return
     setState({ isScanning: true })
     res.send({})
     while (state.isScanning) {

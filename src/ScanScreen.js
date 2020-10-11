@@ -58,7 +58,7 @@ export const ScanScreen = () => {
             </div>
             <div>
                 <h2>Scanning paths:</h2>
-                <ul>{scanningPaths && scanningPaths.map(i => <li>{disks.find(d => d.id === i.disk)?.name} > {i.path}</li>)}</ul>
+                <ul>{scanningPaths && scanningPaths.map(i => <li style={{color: i.available ? '#009966' : '#777777'}}>{disks.find(d => d.id === i.disk)?.name} > {i.path}</li>)}</ul>
             </div>
             <div className="Files-content">
                 <div>{files && take(30, files).map(i => <FileView data={i} />)}</div>
@@ -75,7 +75,7 @@ export const ScanScreen = () => {
                 </ul>
             </div>
             <div>
-                <h2>Available disks:</h2>
+                <h2>Saved disks:</h2>
                 <ul>
                     {disks &&
                         disks.map(i => (

@@ -1,11 +1,13 @@
 import util from 'util'
 import os from 'os'
+import fs from 'fs'
 import childProcess from 'child_process'
 import R from 'ramda'
 import drivelist from 'drivelist'
 import { lowercaseFirstLetter } from './utils.js'
 
 const exec = util.promisify(childProcess.exec)
+const fsAccess = util.promisify(fs.access)
 
 export const isWindows = () => os.platform() === 'win32'
 export const isMac = () => os.platform() === 'darwin'
@@ -13,6 +15,7 @@ export const isUnix = () => ['freebsd', 'linux', 'openbsd'].includes(os.platform
 
 const getMacUsbDevices = async () => {
     const result = await exec('system_profiler -json SPUSBDataType')
+    return result
 }
 
 const parseDrive = str => {
@@ -77,4 +80,23 @@ export const unipathToPath = unipath => {
     if (isMac() || isUnix()) {
         return `/Volumes/${unipath}`
     }
+}
+
+export const toSystemPath = async (diskName, path) => {
+    if (isWindows()) {
+        console.log('not implemented yet')
+    }
+    if (isMac()) {
+        return `/Volumes/${diskName}/${path}`
+    }
+    throw new Error('toSystemPath not implemented for this platform')
+}
+
+export const hasAccess = async path => {
+    try {
+        await fsAccess(path)
+    } catch (e) {
+        return false
+    }
+    return true
 }

@@ -54,7 +54,7 @@ async function dbExec(query) {
     })
 }
 
-export const getScanningPaths = () => dbGet('SELECT * FROM scanning_path')
+export const getScanningPaths = async () => dbGet('SELECT * FROM scanning_path')
 
 export const getDisks = () => dbGet('SELECT * FROM disk')
 
