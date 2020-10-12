@@ -1,6 +1,7 @@
 import util from 'util'
 import os from 'os'
 import fs from 'fs'
+import Path from 'path'
 import childProcess from 'child_process'
 import R from 'ramda'
 import drivelist from 'drivelist'
@@ -74,20 +75,28 @@ export const pathToUnipath = async (disk, path) => {
 }
 
 export const unipathToPath = unipath => {
-    if (isWindows()) {
-        console.log('not implemented yet')
-    }
     if (isMac() || isUnix()) {
         return `/Volumes/${unipath}`
     }
+
+    throw new Error('not implemented for this platform')
 }
 
-export const toSystemPath = async (diskName, path) => {
-    if (isWindows()) {
-        console.log('not implemented yet')
-    }
+export const toSystemPath = async (diskName, path, name = '') => {
     if (isMac()) {
-        return `/Volumes/${diskName}/${path}`
+        const nameStr = name ? `/${name}` : ''
+        return `/Volumes/${diskName}/${path}${nameStr}`
+    }
+    throw new Error('toSystemPath not implemented for this platform')
+}
+
+export const toDiskAndPath = (path) => {
+    if (isMac()) {
+        if (!path.match(/^\/Volumes\//)) {
+            throw new Error('/Volumes/ not found at the beginnig of the path')
+        }
+        const [_, __, disk, ...pathParts] = path.split(Path.sep)
+        return [disk, pathParts.join('/')]
     }
     throw new Error('toSystemPath not implemented for this platform')
 }
@@ -99,4 +108,11 @@ export const hasAccess = async path => {
         return false
     }
     return true
+}
+
+export const getDirAndName = path => {
+    return [
+        Path.dirname(path),
+        Path.basename(path),
+    ]
 }

@@ -8,46 +8,59 @@ import {
     saveScanningPath,
     getDisks,
 } from './dbService.js'
-import { getDiskList, isWindows, hasAccess, toSystemPath } from './platformUtils.js'
+import { getDiskList, isWindows, hasAccess, toSystemPath, getDirAndName, toDiskAndPath } from './platformUtils.js'
 import { scanDir, getFileObject, lowercaseFirstLetter } from './utils.js'
 
 const exec = util.promisify(child_process.exec)
 
-export const runScanCycle = async () => {
-    const dirToScan = await getUnscannedDir()
-    if (!dirToScan) {
-        return null
-    }
+export const getDirSystemPath = async dir => {
+    const disks = await getDisks()
+    const diskName = disks.find(d => d.id == dir.disk)?.name
+    return await toSystemPath(diskName, dir.dir, dir.name)
+}
 
-    const files = await scanDir(dirToScan.path)
+export const runScanCycle = async () => {
+    const dirToScan = await getDirSystemPath(await getUnscannedDir())
+    if (!dirToScan) return null
+
+    console.log('run scan cycle: ', dirToScan)
+
+    const files = await scanDir(dirToScan)
+    console.log('files:', files)
+    return files
     await save(files)
-    await updateDirScanTime(dirToScan.disk, dirToScan.path)
+    await updateDirScanTime(dirToScan, dirToScan)
     return files
 }
 
 export const initScan = async () => {
     const scanningPaths = await getScanningPaths()
-    const disks = await getDisks()
 
     for await (const path of scanningPaths) {
-        const diskName = disks.find(d => d.id == path.disk)?.name
-        const systemPath = await toSystemPath(diskName, path.path)
+        // TODO: is diskName needed?
+        const { systemPath, diskName } = path
         console.log('scanning path', systemPath)
-        continue
-        const dirObject = await getFileObject(path.path)
-        await save(dirObject)
+        const dirObject = await getFileObject(systemPath)
+        if (!dirObject) continue
+        
+        const dirObjectWithDisk = {
+            ...dirObject,
+            disk: path.disk,
+        }
+        console.log(path.path, '--', dirObjectWithDisk)
+        await save(dirObjectWithDisk)
     }
 }
 
 export const addScanningPath = saveScanningPath
 
-export const addAvailabilityToPaths = async paths => {
+export const resolvePaths = async paths => {
     const disks = await getDisks()
     const promises = paths.map(async path => {
         const diskName = disks.find(d => d.id == path.disk)?.name
         const systemPath = await toSystemPath(diskName, path.path)
         const available = await hasAccess(systemPath)
-        return { ...path, available }
+        return { ...path, available, systemPath, diskName }
     })
 
     return await Promise.all(promises)
@@ -55,7 +68,7 @@ export const addAvailabilityToPaths = async paths => {
 
 export const getScanningPaths = async () => {
     const rawScanningPaths = await getDbScanningPaths()
-    return addAvailabilityToPaths(rawScanningPaths)
+    return resolvePaths(rawScanningPaths)
 }
 
 export const getMountedDisks = async () => {

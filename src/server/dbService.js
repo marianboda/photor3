@@ -57,6 +57,7 @@ async function dbExec(query) {
 export const getScanningPaths = async () => dbGet('SELECT * FROM scanning_path')
 
 export const getDisks = () => dbGet('SELECT * FROM disk')
+export const getDiskById = id => dbGet('SELECT * FROM disk WHERE id = ?', [id])
 
 export const getUnscannedDir = async () => {
     const q = 'SELECT * FROM dir WHERE scanTime is NULL limit 1'

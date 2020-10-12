@@ -21,14 +21,13 @@ app.use(express.json())
 app.post('/scan-start', async (req, res) => {
     console.log('starting scan')
     await initScan()
-    return
     setState({ isScanning: true })
     res.send({})
     while (state.isScanning) {
         const files = await runScanCycle()
-        if (files === null) {
+        // if (files === null) {
             setState({ isScanning: false })
-        }
+        // }
     }
 })
 
@@ -65,13 +64,11 @@ app.get('/scanning-paths', async (req, res) => {
 
 app.get('/disks', async (req, res) => {
     const data = await getDisks()
-    console.log('data')
     res.send(data)
 })
 
 app.get('/mounted-disks', async (req, res) => {
     const data = await getMountedDisks()
-    console.log('data')
     res.send(data)
 })
 
