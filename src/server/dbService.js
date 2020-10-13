@@ -1,7 +1,7 @@
 import sqlite from 'sqlite3'
 import R from 'ramda'
 import dayjs from 'dayjs'
-import { isWindows, isMac, isUnix, pathToUnipath } from './platformUtils.js'
+import { isWindows, isMac, isUnix, pathToUnipath, getDirAndName } from './platformUtils.js'
 import { DATE_FORMAT } from './utils.js'
 
 const { without } = R
@@ -73,7 +73,7 @@ const getSaveDirQuery = dir => {
 }
 
 const getSaveFileQuery = file => {
-    const keys = without(['isDir', 'disk'], Object.keys(file))
+    const keys = without(['isDir'], Object.keys(file))
     const vals = keys.map(key => typeof file[key] === 'string' ? `"${file[key]}"` : file[key])
     return `INSERT OR IGNORE INTO file (${keys.join(',')}) VALUES (${vals.join(',')})`
 }
@@ -98,12 +98,12 @@ export const save = async files => {
     return result
 }
 
-const getDirScanTimeUpdateQuery = (disk, dir) => {
-    return `UPDATE dir SET scanTime='${dayjs().format(DATE_FORMAT)}' WHERE disk='${disk}' AND dir='${dir}'`
+const getDirScanTimeUpdateQuery = (id) => {
+    return `UPDATE dir SET scanTime='${dayjs().unix()}' WHERE id=${id}`
 }
 
-export const updateDirScanTime = async (disk, dir) => {
-    return dbSave(getDirScanTimeUpdateQuery(disk, dir))
+export const updateDirScanTime = async (id) => {
+    return dbSave(getDirScanTimeUpdateQuery(id))
 }
 
 // export const saveDisk = async (disk) => {

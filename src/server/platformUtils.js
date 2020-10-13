@@ -112,7 +112,7 @@ export const hasAccess = async path => {
 
 export const getDirAndName = path => {
     return [
-        Path.dirname(path),
+        Path.dirname(path) !== '.' ? Path.dirname(path) : '',
         Path.basename(path),
     ]
 }

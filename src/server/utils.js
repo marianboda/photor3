@@ -148,23 +148,21 @@ export const getFileObject = async (rawDir, file = '') => {
         const filePath = Path.join(dir, file)
         const stat = await getStat(filePath)
         const isDir = stat.isDirectory()
-        const [parentDir, fileName] = getDirAndName(dir)
+        const [disk, localPath] = toDiskAndPath(filePath)
+        const [parentDir, fileName] = getDirAndName(localPath)
         const extension = file.includes('.') ? R.last(file.split('.')) : ''
-        const extensionObject = stat.isDirectory() ? {} : { extension }
-        console.log('mtime', stat.mtime)
-        console.log('unix()', dayjs(stat.mtime).unix())
-        const [disk, diskPath] = toDiskAndPath(isDir ? parentDir : dir)
+        const extensionObject = isDir ? {} : { extension }
 
         return {
             name: file || fileName,
-            dir: diskPath,
+            dir: parentDir,
             ...extensionObject,
             // path: await pathToUnipath('', filePath),
             isDir,
             size: !stat.isDirectory() ? stat.size : 0,
             mTime: dayjs(stat.mtime).unix(),
             birthTime: dayjs(stat.birthtime).unix(),
-            ...(stat.isDirectory() ? {} : { scanTime: dayjs().format(DATE_FORMAT) }),
+            ...(isDir ? {} : { scanTime: dayjs().unix() }),
         }
     } catch (e) {
         console.log('dir unavailable', dir)

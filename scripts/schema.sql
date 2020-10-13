@@ -15,10 +15,11 @@ CREATE TABLE "dir"(
 	"processTime" DateTime,
 	"hash" Text );
 
-CREATE UNIQUE INDEX "dir_disk_name_dir" ON "dir" ("disk", "name", "dir");
+CREATE UNIQUE INDEX "dir_disk_dir_name" ON "dir" ("disk", "dir", "name");
 
 CREATE TABLE "file"(
 	"id" Integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+	"disk" Integer NOT NULL,
 	"name" Text NOT NULL,
 	"extension" Text,
 	"dir" Text NOT NULL,
@@ -29,6 +30,8 @@ CREATE TABLE "file"(
 	"hash" Text,
 	"scanTime" DateTime,
 	"processTime" DateTime );
+
+CREATE UNIQUE INDEX "file_disk_dir_name" ON "file " ("disk", "dir", "name");
 
 CREATE UNIQUE INDEX "file_path" ON "file" ( "path" );
 
