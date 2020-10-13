@@ -7,13 +7,12 @@
         align-items: center;
         color: white;
 
-        h1 {
-            font-size: 24px;
+        .title {
+            font-size: 20px;
         }
 
         * {
-            margin-right: 10px;
-            margin-left: 10px;
+            margin: 0 10px;
         }
     }
 
@@ -37,5 +36,18 @@
 
     input {
         width: 300px;
+    }
+
+    .App-content {
+        padding: 16px;
+        margin: 0;
+    }
+
+    .ui.button {
+        margin: 2px;
+    }
+
+    .ui.input {
+        margin: 2px;
     }
 }

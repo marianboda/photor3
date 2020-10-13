@@ -10,15 +10,17 @@ function App() {
         <Router>
             <div className="App">
                 <Header />
-                <Switch>
-                    <Route path="/scan">
-                        <ScanScreen />
-                    </Route>
-                    <Route path="/list">
-                        <ListScreen />
-                    </Route>
-                    <Route path="/">Home</Route>
-                </Switch>
+                <div className="App-content">
+                    <Switch>
+                        <Route path="/scan">
+                            <ScanScreen />
+                        </Route>
+                        <Route path="/list">
+                            <ListScreen />
+                        </Route>
+                        <Route path="/">Home</Route>
+                    </Switch>
+                </div>
             </div>
         </Router>
     );
