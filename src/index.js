@@ -12,6 +12,10 @@ client.onopen = () => {
     client.send('Hello')
 }
 
+client.onmessage = (message) => {
+    store.dispatch({ type: 'WS_MESSAGE', payload: message.data })
+}
+
 ReactDOM.render(
     <Provider store={store}>
         <App />

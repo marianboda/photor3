@@ -63,6 +63,10 @@ export const requester = store => next => action => {
         case 'PROCESS_DEEPEST':
             post('/process-deepest-dir')
             return next(action)
+        case 'WS_MESSAGE':
+            const newAction = JSON.parse(action.payload)
+            store.dispatch(newAction)
+            return next(action)
         default:
             return next(action)
     }
