@@ -2,6 +2,7 @@ import { createStore, applyMiddleware, compose } from 'redux'
 import { requester } from './middleware'
 
 const initialState = {
+    scanningState: 0,
     stats: null,
     files: null,
     dirs: null,
@@ -11,6 +12,10 @@ const initialState = {
 
 const reducer = (state = initialState, action) => {
     switch (action.type) {
+        case 'SCAN_START':
+            return { ...state, scanningState: 1 }
+        case 'SCAN_STOP':
+            return { ...state, scanningState: 0 }
         case 'GET_FILES':
             return { ...state, files: [] }
         case 'GET_DIRS':

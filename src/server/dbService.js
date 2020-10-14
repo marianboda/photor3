@@ -68,14 +68,16 @@ export const getUnscannedDir = async () => {
 const getSaveDirQuery = dir => {
     console.log('saving dir', dir)
     const keys = without(['isDir', 'size'], Object.keys(dir))
-    const vals = keys.map(key => `"${dir[key]}"`)
-    return `INSERT OR IGNORE INTO dir (${keys.join(',')}) VALUES (${vals.join(',')})`
+    const vals = keys.map(key => dir[key])
+    const placeholders = keys.map(_ => '?').join(', ')
+    return [`INSERT OR IGNORE INTO dir (${keys.join(',')}) VALUES (${placeholders})`, vals]
 }
 
 const getSaveFileQuery = file => {
     const keys = without(['isDir'], Object.keys(file))
-    const vals = keys.map(key => typeof file[key] === 'string' ? `"${file[key]}"` : file[key])
-    return `INSERT OR IGNORE INTO file (${keys.join(',')}) VALUES (${vals.join(',')})`
+    const vals = keys.map(key => file[key])
+    const placeholders = keys.map(_ => '?').join(', ')
+    return [`INSERT OR IGNORE INTO file (${keys.join(',')}) VALUES (${placeholders})`, vals]
 }
 
 const getSaveQuery = files => {
@@ -84,25 +86,26 @@ const getSaveQuery = files => {
         return f.isDir ? getSaveDirQuery(f) : getSaveFileQuery(f)
     }
     if (Array.isArray(files)) {
-        return files.map(getSaveOneQuery).join(';\n')
+        return files.map(getSaveOneQuery)
     }
-    return getSaveOneQuery(files)
+    return [getSaveOneQuery(files)]
 }
 
 export const save = async files => {
+    const saveQueries = getSaveQuery(files)
     console.log('------- SAVE QUERY -------------------')
     console.log(getSaveQuery(files))
     console.log('------- ---------- -------------------')
-    const result = await dbExec(getSaveQuery(files))
-    console.log(' - ', result)
-    return result
+    await Promise.all(saveQueries.map(async ([query, values]) => dbSave(query, values)))
+    console.log(' - query awaited')
+    return true
 }
 
-const getDirScanTimeUpdateQuery = (id) => {
+const getDirScanTimeUpdateQuery = id => {
     return `UPDATE dir SET scanTime='${dayjs().unix()}' WHERE id=${id}`
 }
 
-export const updateDirScanTime = async (id) => {
+export const updateDirScanTime = async id => {
     return dbSave(getDirScanTimeUpdateQuery(id))
 }
 
@@ -123,7 +126,10 @@ export const saveScanningPath = async (disk, path) => {
     if (isMac() || isUnix()) {
         console.log(`have to save disk: ${disk}, path: ${path}`)
         if (!disk) throw new Error('no disk defined')
-        return dbSave(`INSERT OR IGNORE INTO scanning_path (disk, path) VALUES (?, ?)`, [disk, path])
+        return dbSave(`INSERT OR IGNORE INTO scanning_path (disk, path) VALUES (?, ?)`, [
+            disk,
+            path,
+        ])
     }
     // return dbSave(`INSERT OR IGNORE INTO scanning_path (path) VALUES (?)`, [path])
     // return dbSave(`INSERT OR IGNORE INTO disk (path) VALUES (?)`, [path])

@@ -9,7 +9,8 @@ export const ScanScreen = () => {
     const getFiles = () => dispatch({ type: 'GET_FILES' })
     const hashFile = () => dispatch({ type: 'HASH_FILE' })
     const processDeepest = () => dispatch({ type: 'PROCESS_DEEPEST' })
-    const saveScanningPath = (disk, path) => dispatch({ type: 'SAVE_SCANNING_PATH', payload: { disk, path } })
+    const saveScanningPath = (disk, path) =>
+        dispatch({ type: 'SAVE_SCANNING_PATH', payload: { disk, path } })
     const getScanningPaths = () => dispatch({ type: 'GET_SCANNING_PATHS' })
     const scanStart = () => dispatch({ type: 'SCAN_START' })
     const scanStop = () => dispatch({ type: 'SCAN_STOP' })
@@ -18,6 +19,7 @@ export const ScanScreen = () => {
     const scanningPaths = useSelector(state => state.scanningPaths)
     const disks = useSelector(state => state.disks)
     const mountedDisks = useSelector(state => state.mountedDisks)
+    const scanningState = useSelector(state => state.scanningState)
 
     const [disk, setDisk] = useState(1)
     const [path, setPath] = useState('')
@@ -29,33 +31,40 @@ export const ScanScreen = () => {
     }, [])
 
     const renderScanningPath = i => (
-        <li style={{color: i.available ? '#009966' : '#777777'}}>
+        <li style={{ color: i.available ? '#009966' : '#777777' }}>
             {disks?.find(d => d.id === i.disk)?.name} &gt; {i.path}
         </li>
     )
-    
+
     return (
         <div className="Scan-screen">
             <div>
                 <Dropdown
-                    placeholder='Select Country'
-                    className='mini input'
+                    placeholder="Select Country"
+                    className="mini input"
                     selection
                     value={disk}
                     onChange={(_, { value }) => setDisk(value)}
                     options={disks?.map(i => ({ text: i.name, value: i.id, key: i.id })) || []}
                 />
-
                 <Input value={path} onChange={e => setPath(e.target.value)} size="mini" />
                 <Button icon="plus" size="mini" onClick={() => saveScanningPath(disk, path)} />
             </div>
             <div>
-                <Button size="mini" onClick={() => scanStart(path)}>
-                    SCAN START
-                </Button>
-                <Button size="mini" onClick={() => scanStop(path)}>
-                    SCAN STOP
-                </Button>
+                <Button
+                    size="mini"
+                    onClick={() => scanStart(path)}
+                    icon="play"
+                    content="START"
+                    color={scanningState ? 'grey' : 'green'}
+                />
+                <Button
+                    size="mini"
+                    icon="stop"
+                    onClick={() => scanStop(path)}
+                    content="STOP"
+                    color={scanningState ? 'yellow' : 'grey'}
+                />
                 <Button size="mini" onClick={processDeepest}>
                     PROCESS DEEPEST
                 </Button>

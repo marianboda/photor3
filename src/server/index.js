@@ -25,9 +25,9 @@ app.post('/scan-start', async (req, res) => {
     res.send({})
     while (state.isScanning) {
         const files = await runScanCycle()
-        // if (files === null) {
+        if (files === null) {
             setState({ isScanning: false })
-        // }
+        }
     }
 })
 

@@ -20,9 +20,10 @@ export const getDirSystemPath = async dir => {
 }
 
 export const runScanCycle = async () => {
-    const unscannedDirRectord = await getUnscannedDir()
-    const { disk } = unscannedDirRectord
-    const dirToScan = await getDirSystemPath(unscannedDirRectord)
+    const unscannedDirRecord = await getUnscannedDir()
+    if (!unscannedDirRecord) return null
+    const { disk } = unscannedDirRecord
+    const dirToScan = await getDirSystemPath(unscannedDirRecord)
     if (!dirToScan) return null
 
     console.log('run scan cycle: ', dirToScan)
@@ -35,8 +36,13 @@ export const runScanCycle = async () => {
     })
     const filesWithDisk = files.map(addDisk)
     console.log('files:', filesWithDisk)
-    await save(filesWithDisk)
-    await updateDirScanTime(unscannedDirRectord.id)
+    try {
+        await save(filesWithDisk)
+        await updateDirScanTime(unscannedDirRecord.id)
+    } catch (e) {
+        console.log('Error saving or updating scanning time', e)
+        throw e
+    }
     return filesWithDisk
 }
 
