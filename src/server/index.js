@@ -1,4 +1,5 @@
 import express from 'express'
+import ws from 'ws'
 
 import { runScanCycle, initScan, addScanningPath, getMountedDisks, getScanningPaths } from './scanService.js'
 import { getFiles, getDirs, dbGet, getDisks } from './dbService.js'
@@ -6,6 +7,11 @@ import { getFileStats } from './dbServiceLegacy.js'
 
 const app = express()
 const port = process.env.PORT || 5000
+
+const wsServer = new ws.Server({ noServer: true })
+wsServer.on('connection', socket => {
+    socket.on('message', console.log.bind(console))
+})
 
 let state = {
     isScanning: false,
@@ -15,7 +21,16 @@ const setState = change => {
     state = { ...state, ...change }
 }
 
-app.listen(port, () => console.log(`Listening on port ${port}`))
+const server = app.listen(port, () => console.log(`Listening on port ${port}`))
+
+server.on('upgrade', (request, socket, head) => {
+    wsServer.handleUpgrade(request, socket, head, socket => {
+        wsServer.emit('connection', socket, request)
+    })
+})
+
+wsServer.on('connection', (wsConnection) => wsConnection.send('Greetings from Server :D'))
+
 app.use(express.json())
 
 app.post('/scan-start', async (req, res) => {

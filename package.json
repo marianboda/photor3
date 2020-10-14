@@ -18,7 +18,8 @@
     "semantic-ui-css": "^2.4.1",
     "semantic-ui-react": "^1.2.0",
     "sqlite": "^4.0.14",
-    "sqlite3": "^4.0.6"
+    "sqlite3": "^4.0.6",
+    "ws": "^7.3.1"
   },
   "scripts": {
     "initdb": "mkdir -p data; rm -f data/db.sqlite; sqlite3 data/db.sqlite < ./scripts/schema.sql; chmod -R 0777 data",
