@@ -47,5 +47,4 @@ CREATE TABLE "scanning_path"(
 	"disk" Integer NOT NULL,
 	"path" Text NOT NULL );
 
--- TODO: Need to define multicolumn index: path + disk
--- CREATE UNIQUE INDEX "scanning_path_path" ON "scanning_path" ( "path" );
+CREATE UNIQUE INDEX "scanning_path_disk_path" ON "scanning_path" ( "disk", "path" );
