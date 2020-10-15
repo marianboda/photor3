@@ -1,5 +1,6 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
+import { Button } from 'semantic-ui-react'
 import { DirListing } from './DirListing'
 
 export const ListScreen = () => {
@@ -15,9 +16,9 @@ export const ListScreen = () => {
     return (
         <div className="Scan-screen">
             <div>
-                <button type="button" onClick={getDirs}>
+                <Button size="mini" onClick={getDirs}>
                     LIST DIRS
-                </button>
+                </Button>
             </div>
             <DirListing dirs={dirs} selectedDir={selectedDir} onClick={handlePathClick} />
         </div>

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Label } from 'semantic-ui-react'
+import { Icon, Label } from 'semantic-ui-react'
 import { last } from 'ramda'
 import { Link } from 'react-router-dom'
 
@@ -43,6 +43,7 @@ export const DirView = ({ data, onClick }) => {
             {/* <Label color="orange" horizontal>
                 {data.filesCount}
             </Label> */}
+            <Icon name="folder outline" />
             <span onClick={handlePathClick}>{data.name} {data.path}</span>
 
             {/* {' '} */}
