@@ -20,6 +20,7 @@ export const ScanScreen = () => {
     const disks = useSelector(state => state.disks)
     const mountedDisks = useSelector(state => state.mountedDisks)
     const scanningState = useSelector(state => state.scanningState)
+    const currentlyScanningDir = useSelector(state => state.currentlyScanningDir || {})
 
     const [disk, setDisk] = useState(1)
     const [path, setPath] = useState('')
@@ -65,6 +66,9 @@ export const ScanScreen = () => {
                     content="STOP"
                     color={scanningState ? 'yellow' : 'grey'}
                 />
+                <span>{currentlyScanningDir.disk}/{currentlyScanningDir.dir}/{currentlyScanningDir.name}</span>
+            </div>
+            <div>
                 <Button size="mini" onClick={processDeepest}>
                     PROCESS DEEPEST
                 </Button>

@@ -3,6 +3,7 @@ import { requester } from './middleware'
 
 const initialState = {
     scanningState: 0,
+    currentlyScanningDir: null,
     stats: null,
     files: null,
     dirs: null,
@@ -20,6 +21,8 @@ const reducer = (state = initialState, action) => {
             return { ...state, files: [] }
         case 'GET_DIRS':
             return { ...state, dirs: [] }
+        case 'UPDATE_CURRENTLY_SCANNING':
+            return { ...state, currentlyScanningDir: action.payload }
         case 'SET_SCANNING_PATHS':
             return { ...state, scanningPaths: action.payload }
         case 'SET_FILES':

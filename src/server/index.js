@@ -49,15 +49,16 @@ app.post('/scan-start', async (req, res) => {
     console.log('starting scan')
     await initScan()
     setState({ isScanning: true })
-    wsServer.broadcast(JSON.stringify({type: 'SCAN_STARTED'}))
+    wsServer.broadcast(JSON.stringify({ type: 'SCAN_STARTED' }))
     res.send({})
     while (state.isScanning) {
-        const files = await runScanCycle()
-        if (files === null) {
+        const result = await runScanCycle()
+        if (result === null) {
             setState({ isScanning: false })
         }
+        wsServer.broadcast(JSON.stringify({ type: 'UPDATE_CURRENTLY_SCANNING', payload: result }))
     }
-    wsServer.broadcast(JSON.stringify({type: 'SCAN_STOP'}))
+    wsServer.broadcast(JSON.stringify({ type: 'SCAN_STOP' }))
 })
 
 app.post('/scan-stop', async (req, res) => {
