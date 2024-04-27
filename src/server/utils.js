@@ -2,14 +2,14 @@ import fs from 'fs';
 import Path from 'path';
 
 import RxJs from 'rxjs';
-import RxOps from 'rxjs/operators/index.js';
+import { flatMap, map, filter, /* take, */ tap, catchError } from 'rxjs/operators';
 import dayjs from 'dayjs';
-import R from 'ramda';
+import * as R from 'ramda';
 import crypto from 'crypto';
 import { promisify } from 'util';
 
 const { bindNodeCallback, of, merge, from } = RxJs;
-const { flatMap, map, filter, /* take, */ tap, catchError } = RxOps;
+// const { flatMap, map, filter, /* take, */ tap, catchError } = RxOps;
 const { isEmpty } = R;
 const getStat = promisify(fs.lstat);
 

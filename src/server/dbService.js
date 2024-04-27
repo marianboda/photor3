@@ -1,5 +1,5 @@
 import sqlite from 'sqlite3';
-import R from 'ramda';
+import * as R from 'ramda';
 import dayjs from 'dayjs';
 import { DATE_FORMAT } from './utils.js';
 
@@ -7,7 +7,7 @@ const { without } = R;
 
 const db = new sqlite.Database('./data/db.sqlite');
 
-async function dbGet(query) {
+export async function dbGet(query) {
     console.log('dbGet query', query);
     return new Promise((resolve, reject) => {
         db.all(query, (err, data) => {

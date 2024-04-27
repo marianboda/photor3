@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { sort, prop, descend } from 'ramda';
-import { DirView } from './components/DirView';
+import { DirView } from './components/DirView.js';
 
 export const ListScreen = () => {
     const dispatch = useDispatch();

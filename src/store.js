@@ -1,5 +1,5 @@
 import { createStore, applyMiddleware, compose } from 'redux';
-import { requester } from './middleware';
+import { requester } from './middleware.js';
 
 const initialState = {
     stats: null,

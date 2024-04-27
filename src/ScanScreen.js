@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { take } from 'ramda';
-import { FileView } from './components/FileItem';
+import { FileView } from './components/FileItem.js';
 
 
 export const ScanScreen = () => {

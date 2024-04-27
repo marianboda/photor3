@@ -1,10 +1,13 @@
 import express from 'express';
 
 import { runScanCycle, initScan, addScanningPath } from './scanService.js';
-import { getFiles, getDirs, getScanningPaths } from './dbService.js';
+import { getFiles, getDirs, getScanningPaths, dbGet } from './dbService.js';
+import { getFileStats, getUnhashedFile, updateFileHash } from './dbServiceLegacy.js';
+import { hashFile } from './utils.js';
+
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 5001;
 
 let state = {
     isScanning: false,
@@ -80,9 +83,9 @@ app.get('/scanning-paths', async (req, res) => {
 //     res.send({ deepFilesCount, filesCount, getResult });
 // });
 
-// app.post('/hashFile', async (req, res) => {
-//     const [file] = await dbGet(getUnhashedFile());
-//     const hash = await hashFile(file.path);
-//     await dbGet(updateFileHash(file.id, hash));
-//     res.send({ ...file, hash });
-// });
+app.post('/hashFile', async (req, res) => {
+    const [file] = await dbGet(getUnhashedFile());
+    const hash = await hashFile(file.path);
+    await dbGet(updateFileHash(file.id, hash));
+    res.send({ ...file, hash });
+});
